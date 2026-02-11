@@ -6,5 +6,13 @@
 
     "runArgs": [
         "--privileged" // This is NOT safe, but we need it to flash the FPGA.
-    ]
+	],
+	
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"mshr-h.veriloghdl"
+			]
+		}
+	}
 }
