@@ -17,4 +17,13 @@ struct {
     bit alive;
 } character;
 
+always @(posedge clk) begin
+    if (input_left == 1) begin
+        cannon.x_pos -= 5;
+    end
+    if (input_right == 1) begin
+       cannon.x_pos += 5; 
+    end
+end
+
 endmodule
