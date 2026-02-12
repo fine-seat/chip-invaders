@@ -2,7 +2,7 @@
 	"name": "librelane-base-image",
     "image": "ghcr.io/hm-aemy/librelane-base-image:latest",
 
-    "postCreateCommand": ".devcontainer/post-create.sh",
+    "postCreateCommand": "bash .devcontainer/post-create.sh",
 
 	"postAttachCommand": "git config --global --unset http.sslcainfo || true", // so you can commit and push inside the devcontainer
 
