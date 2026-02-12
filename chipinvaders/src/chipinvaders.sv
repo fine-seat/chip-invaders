@@ -8,10 +8,13 @@ module chipinvaders (
 localparam alien_row_size = 5;
 localparam alien_column_size = 3;
 
-localparam coordinate_size = 10;
-localparam alive_size = 1;
+character alien_array [0:alien_row_size*alien_column_size-1];
+character cannon;
 
-logic alien_array [0:alien_row_size*alien_column_size*(2*coordinate_size+alive_size)-1];
-logic cannon_array [0:2*coordinate_size+alive_size-1];
-  
+struct {
+    shortint x_pos;
+    shortint y_pos;
+    bit alive;
+} character;
+
 endmodule
