@@ -1,0 +1,7 @@
+DESIGN_NAME: chipinvaders
+
+VERILOG_FILES:
+  - src/chipinvaders.sv
+
+CLOCK_PERIOD: 20
+CLOCK_PORT: clk
