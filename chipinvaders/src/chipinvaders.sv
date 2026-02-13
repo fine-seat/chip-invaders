@@ -9,7 +9,7 @@ localparam alien_row_size = 5;
 localparam alien_column_size = 3;
 
 character alien_array [0:alien_row_size*alien_column_size-1];
-character cannon;
+character cannon = {x_pos: 100, y_pos: 100, alive: 1};
 
 struct {
     shortint x_pos;
