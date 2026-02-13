@@ -37,3 +37,11 @@ make bits
 ```sh
 make program
 ```
+
+### Loading without devcontainer
+If you encounter issues loading with the Devcontainer, you can use the openFPGALoader without it. Please refer to the [documentation](https://trabucayre.github.io/openFPGALoader/guide/install.html) for information on installing it on your device.
+
+To run openFPGALoader:
+```sh
+openFPGALoader --board nexys_a7_100 --bitstream chipinvaders.bit
+```
