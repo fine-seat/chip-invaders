@@ -25,6 +25,11 @@ class CannonTester:
         self.input_left = dut.input_left
         self.input_right = dut.input_right
         self.input_fire = dut.input_fire
+        self.output_aliens = dut.output_aliens
+        # self.output_cannon = dut.output_cannon
+        self.y_pos_cannon = dut.y_pos_cannon
+        self.x_pos_cannon = dut.x_pos_cannon
+        self.alive_cannon = dut.alive_cannon
 
     async def set_operand(self, value: int, save_A: bool, save_B: bool):
         """Set operand input value."""
@@ -32,6 +37,11 @@ class CannonTester:
         self.operand.value = value
         self.save_A.value = save_A
         self.save_B.value = save_B
+        
+    async def set_right(self):
+        """Set right value."""
+        await FallingEdge(self.clk)
+        self.input_right.value = 1
 
 
 @cocotb.test()
@@ -42,14 +52,14 @@ async def test_basic_movement(dut):
     clock = Clock(dut.clk, 3, unit="us")
     cocotb.start_soon(clock.start())
 
-    want = 101
+    want = 105
 
-    await FallingEdge(self.clk)
-    await tester.set_operand(5, save_A=1, save_B=0)
+    await tester.set_right()
     # replace this line with actions that we want to put to test
     await RisingEdge(tester.clk)
+    await tester.set_right()
 
-    have = tester.result.value
+    have = int(str(tester.x_pos_cannon), 2)
 
     assert want == have, f"✗ Test failed\r\n\tExpected value: {want}\r\n\tReceived value:{have}"
 
