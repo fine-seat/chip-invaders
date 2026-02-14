@@ -7,12 +7,14 @@ set_property PACKAGE_PIN C12 [get_ports {rst_n}]
 set_property IOSTANDARD LVCMOS33 [get_ports {rst_n}]
 
 ## Buttons
-set_property PACKAGE_PIN N17 [get_ports {input_fire}]
-set_property IOSTANDARD LVCMOS33 [get_ports {input_fire}]
-set_property PACKAGE_PIN P17 [get_ports {input_left}]
-set_property IOSTANDARD LVCMOS33 [get_ports {input_left}]
-set_property PACKAGE_PIN M17 [get_ports {input_right}]
-set_property IOSTANDARD LVCMOS33 [get_ports {input_right}]
+set_property PACKAGE_PIN N17 [get_ports {btn_d}]
+set_property IOSTANDARD LVCMOS33 [get_ports {btn_d}]
+set_property PACKAGE_PIN P17 [get_ports {btn_l}]
+set_property IOSTANDARD LVCMOS33 [get_ports {btn_l}]
+set_property PACKAGE_PIN M17 [get_ports {btn_r}]
+set_property IOSTANDARD LVCMOS33 [get_ports {btn_r}]
+set_property PACKAGE_PIN M18 [get_ports {btn_u}]
+set_property IOSTANDARD LVCMOS33 [get_ports {btn_u}]
 
 ## VGA Connector
 set_property PACKAGE_PIN A3 [get_ports {vga_r[0]}]
