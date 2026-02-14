@@ -16,4 +16,13 @@ module chipinvaders (
     output vga_vs
 );
 
+    logic clk_wiz_out;
+
+    design_1_clk_wiz_0_0_clk_wiz clk_wiz (
+        .clk_out1(clk_wiz_out),
+        .reset(~rst_n),
+        .locked(),
+        .clk_in1(clk)
+    );
+
 endmodule
