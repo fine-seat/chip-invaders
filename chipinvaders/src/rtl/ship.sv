@@ -21,7 +21,7 @@ module ship (
 
     always_ff @(posedge v_sync or negedge rst_n) begin
         if (~rst_n) begin
-            x_reg <= 10'd312; // Iniciar centrado
+            x_reg <= 10'd312;
         end else begin
             if (move_left && x_reg > SPEED) 
                 x_reg <= x_reg - SPEED;
