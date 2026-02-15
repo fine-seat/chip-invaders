@@ -34,7 +34,7 @@ jobs:
       if: steps.check_tests.outputs.tests_exist == 'true'
       run: |
         apt-get update
-        apt-get install -y python3-pytest
+        apt-get install -y python3-pytest iverilog
 
     - name: Run Tests
       if: steps.check_tests.outputs.tests_exist == 'true'
