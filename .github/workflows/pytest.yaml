@@ -1,0 +1,31 @@
+name: Python Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/hm-aemy/librelane-base-image:latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Install Dependencies
+      run: |
+        apt-get update
+        apt-get install -y python3-pytest
+
+    - name: Run Tests
+      working-directory: chipinvaders/test
+      run: pytest -v
