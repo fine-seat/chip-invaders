@@ -13,7 +13,8 @@
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				"mshr-h.veriloghdl"
+				"mshr-h.veriloghdl",
+				"ms-python.python"
 			]
 		}
 	}

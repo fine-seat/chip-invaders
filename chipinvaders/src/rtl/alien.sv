@@ -21,11 +21,15 @@ function logic [9:0] get_position(input logic [9:0] idx);
 endfunction
 
 always_ff @ (posedge clk or negedge rst_n) begin
-    if (rst_n) begin
+    if (!rst_n) begin
         x_pos <= get_position(x_idx);
         y_pos <= get_position(y_idx);
         alive <= 1;
         fired <= 0;
+    end else begin
+        if (hit) begin
+            alive <= 0;
+        end
     end
 end
 
