@@ -89,9 +89,7 @@ async def test_hit(dut):
     
     clock = Clock(dut.clk, 10, unit="us")
     cocotb.start_soon(clock.start())
-    
-    await tester.set_indices()
-    await tester.reset_module()    
+       
     await tester.set_hit()
     
     await RisingEdge(tester.clk)
