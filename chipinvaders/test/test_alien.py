@@ -32,8 +32,8 @@ class AlienTester:
         self.x_pos = dut.x_pos
         self.y_pos = dut.y_pos
         
-    async def set_indices(self, x: int, y: int):
-        await FallingEdge(self.clk)
+    async def set_indices(self, x: int = 0, y: int = 0):
+        await RisingEdge(self.clk)
         self.x_idx.value = x
         self.y_idx.value = y
         
@@ -42,6 +42,10 @@ class AlienTester:
         await FallingEdge(self.clk)
         self.rst_n.value = 1
         await FallingEdge(self.clk)
+        
+    async def set_hit(self, hit: int = 1):
+        self.hit.value = hit
+        await RisingEdge(self.clk)
 
 @cocotb.test()
 async def test_init(dut):
@@ -77,6 +81,25 @@ async def test_init(dut):
             assert have_alive == 1, f"test_init (alive): Expected 1, got {have_alive}"
 
     dut._log.info("✓ Init test passed")
+    
+@cocotb.test()
+async def test_hit(dut):
+    """Test: Test hitting the alien"""
+    tester = AlienTester(dut)
+    
+    clock = Clock(dut.clk, 10, unit="us")
+    cocotb.start_soon(clock.start())
+    
+    await tester.set_indices()
+    await tester.reset_module()    
+    await tester.set_hit()
+    
+    await RisingEdge(tester.clk)
+    have = tester.alive.value
+    
+    assert have == 0, f"test_hit: Expected 0, got {have}"
+    
+    dut._log.info("✓ Hitting test passed")
 
 
 def test_alien_runner():
