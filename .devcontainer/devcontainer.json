@@ -15,7 +15,11 @@
 			"extensions": [
 				"mshr-h.veriloghdl",
 				"ms-python.python"
-			]
+			],
+			"settings": {
+				"verilog.languageServer.veribleVerilogLs.enabled": true,
+				"verilog.linting.linter": "verilator"
+			}
 		}
 	}
 }
