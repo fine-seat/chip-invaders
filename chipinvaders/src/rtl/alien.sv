@@ -1,6 +1,6 @@
 module alien #(
-    parameter INITIAL_POSITION_X,
-    parameter INITIAL_POSITION_Y
+    parameter logic [15:0] INITIAL_POSITION_X = 0,
+    parameter logic [15:0] INITIAL_POSITION_Y = 0
 )(
     input logic clk,
     input logic rst_n,
@@ -10,14 +10,14 @@ module alien #(
     input logic movement_direction, // 0 = left, 1 = right
     input logic armed, // 0 = unable to fire, 1 = capable of firing
 
-    output logic [9:0] position_x = INITIAL_POSITION_X,
-    output logic [9:0] position_y = INITIAL_POSITION_Y,
+    output logic [15:0] position_x = INITIAL_POSITION_X,
+    output logic [15:0] position_y = INITIAL_POSITION_Y,
     output logic graphics
 );
 
 // internal signals for next state
-logic [9:0] next_position_x;
-logic [9:0] next_position_y;
+logic [15:0] next_position_x;
+logic [15:0] next_position_y;
 
 // movement counter for frequency control
 logic [15:0] movement_counter;
@@ -26,7 +26,7 @@ logic [15:0] movement_counter;
 always_comb begin
     next_position_x = position_x;
     next_position_y = position_y;
-    
+
     // move when counter reaches frequency threshold
     if (movement_counter >= movement_frequency && alive) begin
         if (movement_direction) begin
@@ -47,14 +47,14 @@ always_ff @ (posedge clk or negedge rst_n) begin
         // update positions
         position_x <= next_position_x;
         position_y <= next_position_y;
-        
+
         // update movement counter
         if (movement_counter >= movement_frequency) begin
             movement_counter <= 0;
         end else begin
             movement_counter <= movement_counter + 1;
         end
-        
+
     end
 end
 
