@@ -13,9 +13,7 @@ module alien_formation #(
     output logic [NUM_ROWS-1:0][NUM_COLS-1:0] alive_matrix,
     output logic [15:0] alien_positions_x [NUM_ROWS-1:0][NUM_COLS-1:0],
     output logic [15:0] alien_positions_y [NUM_ROWS-1:0][NUM_COLS-1:0],
-    output logic [NUM_ROWS-1:0][NUM_COLS-1:0] alien_graphics,
-
-    input logic [NUM_ROWS-1:0][NUM_COLS-1:0] hit_signals
+    output logic [NUM_ROWS-1:0][NUM_COLS-1:0] alien_graphics
 );
 
     logic [3:0] level;
@@ -23,6 +21,7 @@ module alien_formation #(
     logic [1:0] movement_direction = 1;
     logic [NUM_ROWS-1:0][NUM_COLS-1:0] armed_matrix;
 
+    // update armed-matrix based on alive-matrix
     always_comb begin
         for (int active_column = 0; active_column < NUM_COLS; active_column++) begin
             for (int active_row = 0; active_row < NUM_ROWS; active_row++) begin
@@ -36,7 +35,7 @@ module alien_formation #(
         end
     end
 
-    // create alien array
+    // create alien-matrix
     genvar row, col;
     generate
         for (row = 0; row < NUM_ROWS; row++) begin : alien_rows
@@ -46,6 +45,7 @@ module alien_formation #(
                 localparam INITIAL_POSITION_X = START_X + (col * ALIEN_SPACING_X);
                 localparam INITIAL_POSITION_Y = START_Y + (row * ALIEN_SPACING_Y);
 
+                // create aliens
                 alien #(
                     .INITIAL_POSITION_X(INITIAL_POSITION_X),
                     .INITIAL_POSITION_Y(INITIAL_POSITION_Y)
