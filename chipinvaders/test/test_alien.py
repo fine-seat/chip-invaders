@@ -36,10 +36,6 @@ class AlienTester:
         await FallingEdge(self.clk)
         self.rst_n.value = 1
         await RisingEdge(self.clk)
-        
-    # async def set_hit(self, hit: int = 1):
-    #     self.hit.value = hit
-    #     await RisingEdge(self.clk)
 
 @cocotb.test()
 async def test_reset(dut):
@@ -59,23 +55,33 @@ async def test_reset(dut):
     assert have_y == dut.INITIAL_POSITION_Y.value, f"test_reset (y): Expected {dut.INITIAL_POSITION_Y.value}, got {have_y}"
     
     dut._log.info("✓ Reset test passed")
+
+@cocotb.test()
+async def test_move_right(dut):
+    """Test: Test moving right"""
+    tester = AlienTester(dut)
     
-# @cocotb.test()
-# async def test_hit(dut):
-#     """Test: Test hitting the alien"""
-#     tester = AlienTester(dut)
+    clock = Clock(dut.clk, 10, unit="us")
+    cocotb.start_soon(clock.start())
     
-#     clock = Clock(dut.clk, 10, unit="us")
-#     cocotb.start_soon(clock.start())
-       
-#     await tester.set_hit()
+    for i in range(1, 20):
+        frequency_value = 10
+        
+        await tester.reset_module()
     
-#     await RisingEdge(tester.clk)
-#     have = tester.alive.value
-    
-#     assert have == 0, f"test_hit: Expected 0, got {have}"
-    
-#     dut._log.info("✓ Hitting test passed")
+        tester.alive.value = 1
+        tester.movement_frequency.value = frequency_value
+        tester.movement_direction.value = 1
+        await RisingEdge(tester.clk)
+        
+        for _ in range(i*(frequency_value + 1)):
+            await RisingEdge(tester.clk)
+        
+        have = int(str(tester.position_x), 2)
+        
+        assert have == i, f"test_move_right: Expected {i}, got {have}"
+        
+    dut._log.info("✓ Test move right passed")
 
 
 def test_alien_runner():
