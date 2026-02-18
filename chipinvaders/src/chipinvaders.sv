@@ -85,17 +85,40 @@ module chipinvaders (
       .laser_gfx(laser_gfx)
   );
 
+  // Alien formation
+  logic [2:0][4:0] alive_matrix;
+  logic [15:0] alien_positions_x [2:0][4:0];
+  logic [15:0] alien_positions_y [2:0][4:0];
+  logic alien_pixel;
+
+  alien_formation #(
+      .NUM_ROWS(3),
+      .NUM_COLS(5),
+      .ALIEN_SPACING_X(64),
+      .ALIEN_SPACING_Y(32),
+      .START_X(100),
+      .START_Y(50)
+  ) aliens (
+      .clk(clk_25mhz),
+      .rst_n(rst_n),
+      .scan_x(hpos),
+      .scan_y(vpos),
+      .alive_matrix(alive_matrix),
+      .alien_positions_x(alien_positions_x),
+      .alien_positions_y(alien_positions_y),
+      .alien_pixel(alien_pixel)
+  );
 
   // RGB output logic
   assign vga_r  = (display_on && laser_gfx) ? 4'b1111 : 4'b0000;
   assign vga_g  = (display_on && cannon_gfx) ? 4'b1111 : 4'b0000;
-  assign vga_b  = 4'b0000;  // No blue output for now
+  assign vga_b  = (display_on && alien_pixel) ? 4'b1111 : 4'b0000;
 
   assign vga_hs = hsync;
   assign vga_vs = vsync;
 
 
   // Suppress unused signals warning
-  wire _unused_ok_ = &{laser_active, laser_x, laser_y};
+  wire _unused_ok_ = &{laser_active, laser_x, laser_y, alien_positions_x, alien_positions_y, alive_matrix};
 
 endmodule
