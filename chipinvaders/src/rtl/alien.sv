@@ -1,8 +1,8 @@
 module alien #(
     parameter logic [15:0] INITIAL_POSITION_X = 0,
     parameter logic [15:0] INITIAL_POSITION_Y = 0,
-    parameter SPRITE_WIDTH = 16,
-    parameter SPRITE_HEIGHT = 16
+    parameter logic [15:0] SPRITE_WIDTH = 16,
+    parameter logic [15:0] SPRITE_HEIGHT = 16
 )(
     input logic clk,
     input logic rst_n,
