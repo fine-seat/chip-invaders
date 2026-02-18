@@ -1,10 +1,10 @@
 module alien_formation #(
-    parameter NUM_ROWS = 3,
-    parameter NUM_COLS = 5,
-    parameter ALIEN_SPACING_X = 64,
-    parameter ALIEN_SPACING_Y = 32,
-    parameter START_X = 100,
-    parameter START_Y = 50
+    parameter logic [15:0] NUM_ROWS = 3,
+    parameter logic [15:0] NUM_COLS = 5,
+    parameter logic [15:0] ALIEN_SPACING_X = 64,
+    parameter logic [15:0] ALIEN_SPACING_Y = 32,
+    parameter logic [15:0] START_X = 100,
+    parameter logic [15:0] START_Y = 50
 )(
     input logic clk,
     input logic rst_n,
@@ -14,7 +14,7 @@ module alien_formation #(
     input logic [9:0] scan_y,
 
     // matrices representing individual alien status
-    output logic [NUM_ROWS-1:0][NUM_COLS-1:0] alive_matrix,
+    output logic [NUM_ROWS-1:0][NUM_COLS-1:0] alive_matrix = '1,
     output logic [15:0] alien_positions_x [NUM_ROWS-1:0][NUM_COLS-1:0],
     output logic [15:0] alien_positions_y [NUM_ROWS-1:0][NUM_COLS-1:0],
     output logic alien_pixel
@@ -22,7 +22,7 @@ module alien_formation #(
 
     logic [3:0] level;
     logic [15:0] movement_frequency = 100;
-    logic [1:0] movement_direction = 1;
+    logic movement_direction = 1;
     logic [NUM_ROWS-1:0][NUM_COLS-1:0] armed_matrix;
     logic [NUM_ROWS-1:0][NUM_COLS-1:0] alien_graphics;
 
@@ -43,17 +43,17 @@ module alien_formation #(
     // create alien-matrix
     genvar row, col;
     generate
-        for (row = 0; row < NUM_ROWS; row++) begin : alien_rows
-            for (col = 0; col < NUM_COLS; col++) begin : alien_cols
+        for (row = 0; row < NUM_ROWS; row++) begin : g_alien_rows
+            for (col = 0; col < NUM_COLS; col++) begin : g_alien_cols
 
                 // calculate initial position for each alien
-                localparam INITIAL_POSITION_X = START_X + (col * ALIEN_SPACING_X);
-                localparam INITIAL_POSITION_Y = START_Y + (row * ALIEN_SPACING_Y);
+                localparam logic [15:0] InitialPositionX = START_X + (col * ALIEN_SPACING_X);
+                localparam logic [15:0] InitialPositionY = START_Y + (row * ALIEN_SPACING_Y);
 
                 // create aliens
                 alien #(
-                    .INITIAL_POSITION_X(INITIAL_POSITION_X),
-                    .INITIAL_POSITION_Y(INITIAL_POSITION_Y)
+                    .INITIAL_POSITION_X(InitialPositionX),
+                    .INITIAL_POSITION_Y(InitialPositionY)
                 ) alien_inst (
                     .clk(clk),
                     .rst_n(rst_n),
@@ -85,6 +85,7 @@ module alien_formation #(
     always_ff @ (posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             level <= 0;
+            alive_matrix <= '1;
         end else begin
             level <= 1;
             // basic level management
