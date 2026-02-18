@@ -1,28 +1,101 @@
 module chipinvaders (
-    input clk,
-    input rst_n,
+    input logic clk,
+    input logic rst_n,
 
     // Buttons
-    input btn_d,
-    input btn_l,
-    input btn_r,
-    input btn_u,
+    //input logic btn_d,
+    input logic btn_l,
+    input logic btn_r,
+    input logic btn_u,
 
     // VGA
-    output [3:0] vga_r,
-    output [3:0] vga_g,
-    output [3:0] vga_b,
-    output vga_hs,
-    output vga_vs
+    output logic [3:0] vga_r,
+    output logic [3:0] vga_g,
+    output logic [3:0] vga_b,
+    output logic vga_hs,
+    output logic vga_vs
 );
 
-    logic clk_wiz_out;
+  // Generate a 25 MHz clock from the 100 MHz input
+  //logic [1:0] counter;
+  logic clk_25mhz;
 
-    design_1_clk_wiz_0_0_clk_wiz clk_wiz (
-        .clk_out1(clk_wiz_out),
-        .reset(~rst_n),
-        .locked(),
-        .clk_in1(clk)
-    );
+  // always_ff @(posedge clk or negedge rst_n) begin
+  //   if (!rst_n) begin
+  //     counter <= 0;
+  //   end else begin
+  //     counter <= counter + 1;
+  //   end
+  // end
+
+  // assign clk_25mhz = counter[1];
+  assign clk_25mhz = clk;
+
+
+  // VGA signals
+  logic hsync;
+  logic vsync;
+  logic display_on;
+  logic [9:0] hpos;
+  logic [9:0] vpos;
+
+  hvsync_generator hvsync_gen (
+      .clk(clk_25mhz),
+      .reset(~rst_n),
+      .hsync(hsync),
+      .vsync(vsync),
+      .display_on(display_on),
+      .hpos(hpos),
+      .vpos(vpos)
+  );
+
+  // Cannon modules
+  logic [9:0] cannon_x;
+  logic cannon_gfx;
+
+  ship cannon (
+      .rst_n(rst_n),
+      .v_sync(vsync),
+      .pix_x(hpos),
+      .pix_y(vpos),
+      .move_left(btn_l),
+      .move_right(btn_r),
+      .ship_x_pos(cannon_x),
+      .ship_on(cannon_gfx)
+  );
+
+  logic laser_active;
+  logic [9:0] laser_x;
+  logic [9:0] laser_y;
+  logic laser_gfx;
+
+  cannon_laser #(
+      .CANNON_Y(440)
+  ) laser (
+      .reset_n(rst_n),
+      .vpos(vpos),
+      .hpos(hpos),
+      .vsync(vsync),
+      .shoot(btn_u),
+      .cannon_x(cannon_x),
+      .hit_alien(1'b0),
+      .laser_active(laser_active),
+      .laser_x(laser_x),
+      .laser_y(laser_y),
+      .laser_gfx(laser_gfx)
+  );
+
+
+  // RGB output logic
+  assign vga_r  = (display_on && laser_gfx) ? 4'b1111 : 4'b0000;
+  assign vga_g  = (display_on && cannon_gfx) ? 4'b1111 : 4'b0000;
+  assign vga_b  = 4'b0000;  // No blue output for now
+
+  assign vga_hs = hsync;
+  assign vga_vs = vsync;
+
+
+  // Suppress unused signals warning
+  wire _unused_ok_ = &{laser_active, laser_x, laser_y};
 
 endmodule
