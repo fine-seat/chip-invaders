@@ -13,7 +13,8 @@
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				"mshr-h.veriloghdl"
+				"mshr-h.veriloghdl",
+				"otjamin.verilogvga"
 			],
 			"settings": {
 				"verilog.languageServer.veribleVerilogLs.enabled": true,
