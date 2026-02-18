@@ -31,9 +31,16 @@ module ship (
     logic [9:0] x_reg;
 
     // --- MOVEMENT LOGIC ---
+<<<<<<< HEAD
     always_ff @(posedge v_sync or negedge rst_n) begin
         if (~rst_n) begin
             x_reg <= 10'd312; // Start at center
+=======
+    // Update position on every Vertical Sync (once per frame)
+    always_ff @(posedge v_sync or negedge rst_n) begin
+        if (~rst_n) begin
+            x_reg <= 10'd312; // Start at center screen
+>>>>>>> 707fbfbe0608465a2c7e4c8a17b197a8f65f31f6
         end else begin
             if (move_left && x_reg > SPEED) 
                 x_reg <= x_reg - SPEED;
@@ -45,6 +52,10 @@ module ship (
     assign ship_x_pos = x_reg;
 
     // --- SPRITE BITMAP ---
+<<<<<<< HEAD
+=======
+    // Each line defines a row of pixels (13-bit wide vector)
+>>>>>>> 707fbfbe0608465a2c7e4c8a17b197a8f65f31f6
     logic [12:0] ship_bitmap [8];
     
     always_comb begin
@@ -58,6 +69,7 @@ module ship (
         ship_bitmap[7] = 13'b1111111111111; // ############# 
     end
 
+<<<<<<< HEAD
     // --- RENDERING LOGIC WITH SCALING ---
     always_comb begin
         if (pix_x >= x_reg && pix_x < x_reg + scaled_width && 
@@ -65,6 +77,19 @@ module ship (
             
             // Map screen coordinates back to bitmap coordinates using scale
             ship_on = ship_bitmap[(pix_y - SHIP_Y) / scale][12 - ((pix_x - x_reg) / scale)];
+=======
+    // --- RENDERING LOGIC ---
+    always_comb begin
+        // Check if the current beam (pix_x, pix_y) is inside the ship's bounding box
+        if (pix_x >= x_reg && pix_x < x_reg + WIDTH && 
+            pix_y >= SHIP_Y && pix_y < SHIP_Y + HEIGHT) begin
+            
+            // Access the specific bit in the bitmap:
+            // 1. [pix_y - SHIP_Y] selects the row (0 to 7)
+            // 2. [12 - (pix_x - x_reg)] selects the column (0 to 12)
+            // Subtracting from 12 ensures the MSB is drawn on the left (prevents mirroring)
+            ship_on = ship_bitmap[pix_y - SHIP_Y][12 - (pix_x - x_reg)];
+>>>>>>> 707fbfbe0608465a2c7e4c8a17b197a8f65f31f6
             
         end else begin
             ship_on = 1'b0;
