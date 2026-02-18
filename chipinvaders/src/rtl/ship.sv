@@ -8,48 +8,64 @@ module ship (
     input  logic [9:0] pix_y,
     input  logic       move_left,
     input  logic       move_right,
-    output logic [9:0] ship_x_pos,
-    output logic       ship_on
+    input  logic [3:0] scale,        // Scaling factor (1, 2, 4, etc.)
+    output logic [9:0] ship_x_pos,   // Current X position for bullet spawning
+    output logic       ship_on       // Pixel output signal for the VGA mixer
 );
 
+    // Original Sprite Dimensions (Unscaled)
+    localparam int BASE_WIDTH  = 13;
+    localparam int BASE_HEIGHT = 8;
+    
+    // Position and Speed
     localparam logic [9:0] SHIP_Y  = 10'd440;
     localparam logic [9:0] SPEED   = 10'd4;
-    localparam int         WIDTH   = 13;
-    localparam int         HEIGHT  = 8;
+
+    // Logic to calculate current scaled size
+    logic [9:0] scaled_width;
+    logic [9:0] scaled_height;
+    
+    assign scaled_width  = BASE_WIDTH  * scale;
+    assign scaled_height = BASE_HEIGHT * scale;
 
     logic [9:0] x_reg;
 
+    // --- MOVEMENT LOGIC ---
     always_ff @(posedge v_sync or negedge rst_n) begin
         if (~rst_n) begin
-            x_reg <= 10'd312;
+            x_reg <= 10'd312; // Start at center
         end else begin
             if (move_left && x_reg > SPEED) 
                 x_reg <= x_reg - SPEED;
-            else if (move_right && x_reg < (10'd640 - WIDTH)) 
+            else if (move_right && x_reg < (10'd640 - scaled_width)) 
                 x_reg <= x_reg + SPEED;
         end
     end
 
     assign ship_x_pos = x_reg;
 
-    function logic get_sprite_pixel(input logic [3:0] row, input logic [9:0] col);
-        case (row)
-            4'd0: return (col == 4'd6);
-            4'd1: return (col >= 4'd5 && col <= 4'd7);
-            4'd2: return (col >= 4'd5 && col <= 4'd7);
-            4'd3: return (col >= 4'd1 && col <= 4'd11);
-            4'd4: return 1'b1; // Fila completa
-            4'd5: return 1'b1; // Fila completa
-            4'd6: return 1'b1; // Fila completa
-            4'd7: return 1'b1; // Fila completa
-            default: return 1'b0;
-        endcase
-    endfunction
-
+    // --- SPRITE BITMAP ---
+    logic [12:0] ship_bitmap [8];
+    
     always_comb begin
-        if (pix_x >= x_reg && pix_x < x_reg + WIDTH && 
-            pix_y >= SHIP_Y && pix_y < SHIP_Y + HEIGHT) begin
-            ship_on = get_sprite_pixel(pix_y[3:0] - SHIP_Y[3:0], pix_x - x_reg);
+        ship_bitmap[0] = 13'b0000001000000; //       #       
+        ship_bitmap[1] = 13'b0000011100000; //      ###      
+        ship_bitmap[2] = 13'b0000011100000; //      ###      
+        ship_bitmap[3] = 13'b0111111111110; //  ###########  
+        ship_bitmap[4] = 13'b1111111111111; // ############# 
+        ship_bitmap[5] = 13'b1111111111111; // ############# 
+        ship_bitmap[6] = 13'b1111111111111; // ############# 
+        ship_bitmap[7] = 13'b1111111111111; // ############# 
+    end
+
+    // --- RENDERING LOGIC WITH SCALING ---
+    always_comb begin
+        if (pix_x >= x_reg && pix_x < x_reg + scaled_width && 
+            pix_y >= SHIP_Y && pix_y < SHIP_Y + scaled_height) begin
+            
+            // Map screen coordinates back to bitmap coordinates using scale
+            ship_on = ship_bitmap[(pix_y - SHIP_Y) / scale][12 - ((pix_x - x_reg) / scale)];
+            
         end else begin
             ship_on = 1'b0;
         end
