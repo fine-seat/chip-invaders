@@ -1,10 +1,10 @@
 module alien_formation #(
-    parameter logic [15:0] NUM_ROWS = 3,
-    parameter logic [15:0] NUM_COLS = 5,
-    parameter logic [15:0] ALIEN_SPACING_X = 64,
-    parameter logic [15:0] ALIEN_SPACING_Y = 32,
-    parameter logic [15:0] START_X = 100,
-    parameter logic [15:0] START_Y = 50
+    parameter NUM_ROWS = 3,
+    parameter NUM_COLS = 5,
+    parameter ALIEN_SPACING_X = 64,
+    parameter ALIEN_SPACING_Y = 32,
+    parameter START_X = 100,
+    parameter START_Y = 50
 )(
     input logic clk,
     input logic rst_n,
@@ -17,13 +17,14 @@ module alien_formation #(
     output logic [NUM_ROWS-1:0][NUM_COLS-1:0] alive_matrix,
     output logic [15:0] alien_positions_x [NUM_ROWS-1:0][NUM_COLS-1:0],
     output logic [15:0] alien_positions_y [NUM_ROWS-1:0][NUM_COLS-1:0],
-    output logic [NUM_ROWS-1:0][NUM_COLS-1:0] alien_graphics
+    output logic alien_pixel
 );
 
     logic [3:0] level;
     logic [15:0] movement_frequency = 100;
-    logic movement_direction = 1;
+    logic [1:0] movement_direction = 1;
     logic [NUM_ROWS-1:0][NUM_COLS-1:0] armed_matrix;
+    logic [NUM_ROWS-1:0][NUM_COLS-1:0] alien_graphics;
 
     // update armed-matrix based on alive-matrix
     always_comb begin
@@ -42,17 +43,17 @@ module alien_formation #(
     // create alien-matrix
     genvar row, col;
     generate
-        for (row = 0; row < NUM_ROWS; row++) begin : g_alien_rows
-            for (col = 0; col < NUM_COLS; col++) begin : g_alien_cols
+        for (row = 0; row < NUM_ROWS; row++) begin : alien_rows
+            for (col = 0; col < NUM_COLS; col++) begin : alien_cols
 
                 // calculate initial position for each alien
-                localparam logic [15:0] InitialPositionX = START_X + (col * ALIEN_SPACING_X);
-                localparam logic [15:0] InitialPositionY = START_Y + (row * ALIEN_SPACING_Y);
+                localparam INITIAL_POSITION_X = START_X + (col * ALIEN_SPACING_X);
+                localparam INITIAL_POSITION_Y = START_Y + (row * ALIEN_SPACING_Y);
 
                 // create aliens
                 alien #(
-                    .INITIAL_POSITION_X(InitialPositionX),
-                    .INITIAL_POSITION_Y(InitialPositionY)
+                    .INITIAL_POSITION_X(INITIAL_POSITION_X),
+                    .INITIAL_POSITION_Y(INITIAL_POSITION_Y)
                 ) alien_inst (
                     .clk(clk),
                     .rst_n(rst_n),
@@ -70,6 +71,16 @@ module alien_formation #(
             end
         end
     endgenerate
+
+    // Combine all alien graphics into single output bit
+    always_comb begin
+        alien_pixel = alien_graphics[0][0] | alien_graphics[0][1] | alien_graphics[0][2] | 
+                      alien_graphics[0][3] | alien_graphics[0][4] |
+                      alien_graphics[1][0] | alien_graphics[1][1] | alien_graphics[1][2] | 
+                      alien_graphics[1][3] | alien_graphics[1][4] |
+                      alien_graphics[2][0] | alien_graphics[2][1] | alien_graphics[2][2] | 
+                      alien_graphics[2][3] | alien_graphics[2][4];
+    end
 
     always_ff @ (posedge clk or negedge rst_n) begin
         if (!rst_n) begin
