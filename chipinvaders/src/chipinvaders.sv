@@ -61,7 +61,8 @@ module chipinvaders (
       .move_left(btn_l),
       .move_right(btn_r),
       .ship_x_pos(cannon_x),
-      .ship_on(cannon_gfx)
+      .ship_on(cannon_gfx),
+      .scale(4)
   );
 
   logic laser_active;
@@ -93,9 +94,5 @@ module chipinvaders (
 
   assign vga_hs = hsync;
   assign vga_vs = vsync;
-
-
-  // Suppress unused signals warning
-  wire _unused_ok_ = &{laser_active, laser_x, laser_y};
 
 endmodule
