@@ -9,6 +9,10 @@ module alien_formation #(
     input logic clk,
     input logic rst_n,
 
+    // current scan position of VGA module
+    input logic [9:0] scan_x,
+    input logic [9:0] scan_y,
+
     // matrices representing individual alien status
     output logic [NUM_ROWS-1:0][NUM_COLS-1:0] alive_matrix,
     output logic [15:0] alien_positions_x [NUM_ROWS-1:0][NUM_COLS-1:0],
@@ -56,6 +60,8 @@ module alien_formation #(
                     .movement_frequency(movement_frequency),
                     .movement_direction(movement_direction),
                     .armed(armed_matrix[row][col]),
+                    .scan_x(scan_x),
+                    .scan_y(scan_y),
                     .position_x(alien_positions_x[row][col]),
                     .position_y(alien_positions_y[row][col]),
                     .graphics(alien_graphics[row][col])
