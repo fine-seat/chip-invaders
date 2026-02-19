@@ -120,17 +120,15 @@ input logic clk,
     output logic graphics
 */
 
-logic alive;
-
 alien #(
-    .INITIAL_POSITION_X(200),
+    .INITIAL_POSITION_X(150),
     .INITIAL_POSITION_Y(200)
 ) i_alien (
-    .clk(clk_25mhz),
+    .clk(vsync),
     .rst_n(rst_n),
-    .alive(alive),
-    .movement_frequency(10000),
-    .movement_direction(0),
+    .alive(1),
+    .movement_frequency(100),
+    .movement_direction(1),
     .armed(1),
     .scan_x(hpos),
     .scan_y(vpos),

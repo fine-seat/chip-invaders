@@ -54,9 +54,9 @@ always_comb begin
     // move when counter reaches frequency threshold
     if (movement_counter >= movement_frequency && alive) begin
         if (movement_direction) begin
-            next_position_x = position_x + 10;
+            next_position_x = position_x + 1;
         end else begin
-            next_position_x = position_x - 10;
+            next_position_x = position_x - 1;
         end
     end
 end
