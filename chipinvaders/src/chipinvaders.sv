@@ -87,13 +87,11 @@ module chipinvaders (
 
   // Alien formation
   logic [2:0][4:0] alive_matrix;
-  logic [15:0] alien_positions_x [2:0][4:0];
-  logic [15:0] alien_positions_y [2:0][4:0];
   logic alien_pixel;
 
   alien_formation #(
       .NUM_ROWS(3),
-      .NUM_COLS(5),
+      .NUM_COLUMNS(5),
       .ALIEN_SPACING_X(64),
       .ALIEN_SPACING_Y(32),
       .START_X(100),
@@ -104,8 +102,6 @@ module chipinvaders (
       .scan_x(hpos),
       .scan_y(vpos),
       .alive_matrix(alive_matrix),
-      .alien_positions_x(alien_positions_x),
-      .alien_positions_y(alien_positions_y),
       .alien_pixel(alien_pixel)
   );
 
@@ -119,6 +115,6 @@ module chipinvaders (
 
 
   // Suppress unused signals warning
-  wire _unused_ok_ = &{laser_active, laser_x, laser_y, alien_positions_x, alien_positions_y, alive_matrix};
+  wire _unused_ok_ = &{laser_active, laser_x, laser_y, alive_matrix};
 
 endmodule
