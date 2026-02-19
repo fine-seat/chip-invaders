@@ -86,11 +86,25 @@ module chipinvaders (
       .laser_gfx(laser_gfx)
   );
 
+  // Scoreboard and Lives
+  logic [1:0] lives = 3;
+  logic [7:0] score;
+  logic [2:0] hud_rgb;
+
+  hud hud (
+      .pix_x(hpos),
+      .pix_y(vpos),
+      .lives(lives),
+      .score(score),
+      .scale(2),
+      .rgb  (hud_rgb)
+  );
+
 
   // RGB output logic
-  assign vga_r  = (display_on && laser_gfx) ? 4'b1111 : 4'b0000;
-  assign vga_g  = (display_on && cannon_gfx) ? 4'b1111 : 4'b0000;
-  assign vga_b  = 4'b0000;  // No blue output for now
+  assign vga_r  = (display_on && (laser_gfx || hud_rgb[2])) ? 4'b1111 : 4'b0000;
+  assign vga_g  = (display_on && (cannon_gfx || hud_rgb[1])) ? 4'b1111 : 4'b0000;
+  assign vga_b  = (display_on && hud_rgb[0]) ? 4'b1111 : 4'b0000;
 
   assign vga_hs = hsync;
   assign vga_vs = vsync;

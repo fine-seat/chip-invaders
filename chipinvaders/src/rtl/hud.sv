@@ -30,11 +30,13 @@ module hud (
     logic letter_on;
     logic [9:0] scaled_char_w, scaled_char_h;
     logic [9:0] scaled_ship_w, scaled_ship_h;
+    logic [9:0] rel_x, rel_y;
+    logic [9:0] ship_rel_x, ship_rel_y;
 
-    assign scaled_char_w = CHAR_WIDTH  * scale;
-    assign scaled_char_h = CHAR_HEIGHT * scale;
-    assign scaled_ship_w = SHIP_WIDTH  * scale;
-    assign scaled_ship_h = SHIP_HEIGHT * scale;
+    assign scaled_char_w = 10'(CHAR_WIDTH  * scale);
+    assign scaled_char_h = 10'(CHAR_HEIGHT * scale);
+    assign scaled_ship_w = 10'(SHIP_WIDTH  * scale);
+    assign scaled_ship_h = 10'(SHIP_HEIGHT * scale);
 
     // --- SHIP BITMAP (For Lives) ---
     logic [12:0] ship_bitmap [8];
@@ -53,53 +55,62 @@ module hud (
     always_comb begin
         letter_on = 1'b0;
         rgb = 3'b000; // Default: transparent/black
+        rel_x = 10'b0;
+        rel_y = 10'b0;
+        ship_rel_x = 10'b0;
+        ship_rel_y = 10'b0;
 
         // --- SCORE SECTION (Characters) ---
         if (pix_y >= HUD_Y_POS && pix_y < HUD_Y_POS + scaled_char_h) begin
             
             // Relative coordinates for character lookup
-            logic [9:0] rel_x, rel_y;
-            rel_y = (pix_y - HUD_Y_POS) / scale;
+            rel_y = (pix_y - HUD_Y_POS) / 10'(scale);
 
             // Render "S"
             if (pix_x >= SCORE_X_START && pix_x < SCORE_X_START + scaled_char_w) begin
-                rel_x = (pix_x - SCORE_X_START) / scale;
+                rel_x = (pix_x - SCORE_X_START) / 10'(scale);
                 if (rel_y==0 || rel_y==3 || rel_y==6) letter_on = (rel_x > 0 && rel_x < 4);
                 else if (rel_y < 3) letter_on = (rel_x == 0);
                 else letter_on = (rel_x == 4);
             end
             // Render "C"
-            else if (pix_x >= SCORE_X_START + (scaled_char_w * 1.5) && pix_x < SCORE_X_START + (scaled_char_w * 2.5)) begin
-                rel_x = (pix_x - (SCORE_X_START + (scaled_char_w * 1.5))) / scale;
+            else if (pix_x >= SCORE_X_START + ((scaled_char_w * 3) >> 1) &&
+                     pix_x < SCORE_X_START + ((scaled_char_w * 5) >> 1)) begin
+                rel_x = (pix_x - (SCORE_X_START + ((scaled_char_w * 3) >> 1))) / 10'(scale);
                 if (rel_y==0 || rel_y==6) letter_on = (rel_x > 0);
                 else letter_on = (rel_x == 0);
             end
             // Render "O"
-            else if (pix_x >= SCORE_X_START + (scaled_char_w * 3) && pix_x < SCORE_X_START + (scaled_char_w * 4)) begin
-                rel_x = (pix_x - (SCORE_X_START + (scaled_char_w * 3))) / scale;
+            else if (pix_x >= SCORE_X_START + (scaled_char_w * 3) &&
+                     pix_x < SCORE_X_START + (scaled_char_w * 4)) begin
+                rel_x = (pix_x - (SCORE_X_START + (scaled_char_w * 3))) / 10'(scale);
                 if (rel_y==0 || rel_y==6) letter_on = (rel_x > 0 && rel_x < 4);
                 else letter_on = (rel_x == 0 || rel_x == 4);
             end
             // Render "R"
-            else if (pix_x >= SCORE_X_START + (scaled_char_w * 4.5) && pix_x < SCORE_X_START + (scaled_char_w * 5.5)) begin
-                rel_x = (pix_x - (SCORE_X_START + (scaled_char_w * 4.5))) / scale;
+            else if (pix_x >= SCORE_X_START + ((scaled_char_w * 9) >> 1) &&
+                     pix_x < SCORE_X_START + ((scaled_char_w * 11) >> 1)) begin
+                rel_x = (pix_x - (SCORE_X_START + ((scaled_char_w * 9) >> 1))) / 10'(scale);
                 if (rel_y==0 || rel_y==3) letter_on = (rel_x < 4);
                 else if (rel_y < 3) letter_on = (rel_x == 0 || rel_x == 4);
                 else letter_on = (rel_x == 0 || (rel_x == (rel_y - 3)));
             end
             // Render "E"
-            else if (pix_x >= SCORE_X_START + (scaled_char_w * 6) && pix_x < SCORE_X_START + (scaled_char_w * 7)) begin
-                rel_x = (pix_x - (SCORE_X_START + (scaled_char_w * 6))) / scale;
+            else if (pix_x >= SCORE_X_START + (scaled_char_w * 6) &&
+                     pix_x < SCORE_X_START + (scaled_char_w * 7)) begin
+                rel_x = (pix_x - (SCORE_X_START + (scaled_char_w * 6))) / 10'(scale);
                 if (rel_y==0 || rel_y==3 || rel_y==6) letter_on = 1'b1;
                 else letter_on = (rel_x == 0);
             end
             // Render ":"
-            else if (pix_x >= SCORE_X_START + (scaled_char_w * 7.5) && pix_x < SCORE_X_START + (scaled_char_w * 8)) begin
+            else if (pix_x >= SCORE_X_START + ((scaled_char_w * 15) >> 1) &&
+                     pix_x < SCORE_X_START + (scaled_char_w * 8)) begin
                 letter_on = (rel_y == 2 || rel_y == 5);
             end
             // Render "0" (Static score digit)
-            else if (pix_x >= SCORE_X_START + (scaled_char_w * 8.5) && pix_x < SCORE_X_START + (scaled_char_w * 9.5)) begin
-                rel_x = (pix_x - (SCORE_X_START + (scaled_char_w * 8.5))) / scale;
+            else if (pix_x >= SCORE_X_START + ((scaled_char_w * 17) >> 1) &&
+                     pix_x < SCORE_X_START + ((scaled_char_w * 19) >> 1)) begin
+                rel_x = (pix_x - (SCORE_X_START + ((scaled_char_w * 17) >> 1))) / 10'(scale);
                 if (rel_y==0 || rel_y==6) letter_on = (rel_x > 0 && rel_x < 4);
                 else letter_on = (rel_x == 0 || rel_x == 4);
             end
@@ -109,21 +120,23 @@ module hud (
 
         // --- LIVES SECTION (Mini Ships) ---
         if (pix_y >= HUD_Y_POS && pix_y < HUD_Y_POS + scaled_ship_h) begin
-            logic [9:0] ship_rel_x, ship_rel_y;
-            ship_rel_y = (pix_y - HUD_Y_POS) / scale;
+            ship_rel_y = (pix_y - HUD_Y_POS) / 10'(scale);
 
             // Display ship icons based on lives remaining
-            if (lives >= 1 && pix_x >= LIVES_X_START && pix_x < LIVES_X_START + scaled_ship_w) begin
-                ship_rel_x = (pix_x - LIVES_X_START) / scale;
-                if (ship_bitmap[ship_rel_y][12 - ship_rel_x]) rgb = 3'b100; // Red
+            if (lives >= 1 && pix_x >= LIVES_X_START &&
+                pix_x < LIVES_X_START + scaled_ship_w) begin
+                ship_rel_x = (pix_x - LIVES_X_START) / 10'(scale);
+                if (ship_bitmap[ship_rel_y[2:0]][12 - ship_rel_x[3:0]]) rgb = 3'b100; // Red
             end
-            else if (lives >= 2 && pix_x >= LIVES_X_START + (scaled_ship_w * 1.5) && pix_x < LIVES_X_START + (scaled_ship_w * 2.5)) begin
-                ship_rel_x = (pix_x - (LIVES_X_START + (scaled_ship_w * 1.5))) / scale;
-                if (ship_bitmap[ship_rel_y][12 - ship_rel_x]) rgb = 3'b100;
+            else if (lives >= 2 && pix_x >= LIVES_X_START + ((scaled_ship_w * 3) >> 1) &&
+                     pix_x < LIVES_X_START + ((scaled_ship_w * 5) >> 1)) begin
+                ship_rel_x = (pix_x - (LIVES_X_START + ((scaled_ship_w * 3) >> 1))) / 10'(scale);
+                if (ship_bitmap[ship_rel_y[2:0]][12 - ship_rel_x[3:0]]) rgb = 3'b100;
             end
-            else if (lives >= 3 && pix_x >= LIVES_X_START + (scaled_ship_w * 3) && pix_x < LIVES_X_START + (scaled_ship_w * 4)) begin
-                ship_rel_x = (pix_x - (LIVES_X_START + (scaled_ship_w * 3))) / scale;
-                if (ship_bitmap[ship_rel_y][12 - ship_rel_x]) rgb = 3'b100;
+            else if (lives >= 3 && pix_x >= LIVES_X_START + (scaled_ship_w * 3) &&
+                     pix_x < LIVES_X_START + (scaled_ship_w * 4)) begin
+                ship_rel_x = (pix_x - (LIVES_X_START + (scaled_ship_w * 3))) / 10'(scale);
+                if (ship_bitmap[ship_rel_y[2:0]][12 - ship_rel_x[3:0]]) rgb = 3'b100;
             end
         end
     end
