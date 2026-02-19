@@ -26,12 +26,12 @@ logic [15:0] next_position_y;
 logic [15:0] movement_counter;
 
 // Sprite ROM
-localparam logic [15:0] sprite_width = 16;
-localparam logic [15:0] sprite_height = 16;
+localparam logic [15:0] sprite_width = 8;
+localparam logic [15:0] sprite_height = 8;
 logic [sprite_width-1:0] sprite_rom [0:sprite_height-1];
-initial begin
-    $readmemb("src/rtl/basic_alien.hex", sprite_rom);
-end
+// initial begin
+//     $readmemb("./rtl/basic_alien.hex", sprite_rom);
+// end
 
 // Calculate relative position within sprite
 logic signed [15:0] rel_x, rel_y;
@@ -41,13 +41,12 @@ always_comb begin
     rel_x = scan_x - position_x;
     rel_y = scan_y - position_y;
 
-    // Check if current scan position is within sprite bounds
     in_sprite_bounds = (rel_x >= 0) && (rel_x < sprite_width) &&
                        (rel_y >= 0) && (rel_y < sprite_height) &&
                        alive;
 
-    // Output graphics signal based on sprite ROM
-    graphics = in_sprite_bounds ? sprite_rom[rel_y[3:0]][rel_x[3:0]] : 1'b0;
+    // Einfaches Viereck statt Sprite ROM
+    graphics = in_sprite_bounds ? 1'b1 : 1'b0;
 end
 
 // combinational logic for movement calculation
@@ -55,9 +54,9 @@ always_comb begin
     // move when counter reaches frequency threshold
     if (movement_counter >= movement_frequency && alive) begin
         if (movement_direction) begin
-            next_position_x = position_x + 1;
+            next_position_x = position_x + 10;
         end else begin
-            next_position_x = position_x - 1;
+            next_position_x = position_x - 10;
         end
     end
 end

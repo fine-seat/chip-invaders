@@ -89,21 +89,53 @@ module chipinvaders (
   logic [2:0][4:0] alive_matrix;
   logic alien_pixel;
 
-  alien_formation #(
-      .NUM_ROWS(3),
-      .NUM_COLUMNS(5),
-      .ALIEN_SPACING_X(64),
-      .ALIEN_SPACING_Y(32),
-      .START_X(100),
-      .START_Y(50)
-  ) aliens (
-      .clk(clk_25mhz),
-      .rst_n(rst_n),
-      .scan_x(hpos),
-      .scan_y(vpos),
-      .alive_matrix(alive_matrix),
-      .alien_pixel(alien_pixel)
-  );
+//   alien_formation #(
+//       .NUM_ROWS(3),
+//       .NUM_COLUMNS(5),
+//       .ALIEN_SPACING_X(64),
+//       .ALIEN_SPACING_Y(32),
+//       .START_X(100),
+//       .START_Y(50)
+//   ) aliens (
+//       .clk(clk_25mhz),
+//       .rst_n(rst_n),
+//       .scan_x(hpos),
+//       .scan_y(vpos),
+//       .alive_matrix(alive_matrix),
+//       .alien_pixel(alien_pixel)
+//   );
+
+/*
+input logic clk,
+    input logic rst_n,
+
+    input logic alive,
+    input logic [15:0] movement_frequency,
+    input logic movement_direction, // 0 = left, 1 = right
+    input logic armed, // 0 = unable to fire, 1 = capable of firing
+
+    input logic [15:0] scan_x,
+    input logic [15:0] scan_y,
+
+    output logic graphics
+*/
+
+logic alive;
+
+alien #(
+    .INITIAL_POSITION_X(200),
+    .INITIAL_POSITION_Y(200)
+) i_alien (
+    .clk(clk_25mhz),
+    .rst_n(rst_n),
+    .alive(alive),
+    .movement_frequency(10000),
+    .movement_direction(0),
+    .armed(1),
+    .scan_x(hpos),
+    .scan_y(vpos),
+    .graphics(alien_pixel)
+);
 
   // RGB output logic
   assign vga_r  = (display_on && laser_gfx) ? 4'b1111 : 4'b0000;
