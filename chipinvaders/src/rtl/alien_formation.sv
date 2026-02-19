@@ -15,8 +15,6 @@ module alien_formation #(
 
     // matrices representing individual alien status
     output logic [NUM_ROWS-1:0][NUM_COLUMNS-1:0] alive_matrix = '1,
-    output logic [15:0] alien_positions_x [NUM_ROWS-1:0][NUM_COLUMNS-1:0],
-    output logic [15:0] alien_positions_y [NUM_ROWS-1:0][NUM_COLUMNS-1:0],
     output logic alien_pixel
 );
 
