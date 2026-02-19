@@ -1,6 +1,6 @@
 module alien_formation #(
-    parameter logic [15:0] NUM_ROWS = 3,
-    parameter logic [15:0] NUM_COLUMNS = 5,
+    parameter logic [15:0] NUM_ROWS = 2,
+    parameter logic [15:0] NUM_COLUMNS = 4,
     parameter logic [15:0] ALIEN_SPACING_X = 64,
     parameter logic [15:0] ALIEN_SPACING_Y = 32,
     parameter logic [15:0] START_X = 100,
