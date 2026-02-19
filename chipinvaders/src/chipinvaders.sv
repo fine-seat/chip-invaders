@@ -90,14 +90,14 @@ module chipinvaders (
   logic alien_pixel;
 
   alien_formation #(
-      .NUM_ROWS(3),
-      .NUM_COLUMNS(5),
+      .NUM_ROWS(2),
+      .NUM_COLUMNS(4),
       .ALIEN_SPACING_X(64),
       .ALIEN_SPACING_Y(32),
       .START_X(100),
       .START_Y(50)
   ) aliens (
-      .clk(clk_25mhz),
+      .clk(vsync),
       .rst_n(rst_n),
       .scan_x(hpos),
       .scan_y(vpos),
