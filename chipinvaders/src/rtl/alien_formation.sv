@@ -72,12 +72,15 @@ module alien_formation #(
 
     // Combine all alien graphics into single output bit
     always_comb begin
-        alien_pixel = graphics_matrix[0][0] | graphics_matrix[0][1] | graphics_matrix[0][2] | 
-                      graphics_matrix[0][3] | graphics_matrix[0][4] |
-                      graphics_matrix[1][0] | graphics_matrix[1][1] | graphics_matrix[1][2] | 
-                      graphics_matrix[1][3] | graphics_matrix[1][4] |
-                      graphics_matrix[2][0] | graphics_matrix[2][1] | graphics_matrix[2][2] | 
-                      graphics_matrix[2][3] | graphics_matrix[2][4];
+        // logic alien_pixel_value = 0;
+        // for (row = 0; row < NUM_ROWS; row++) begin: g_graphics_matrix_rows
+        //     for (column = 0; column < NUM_COLS; column++) begin: g_graphics_matrix_cols
+        //         alien_pixel_value = alien_pixel_value | graphics_matrix[row][column];
+        //     end
+        // end
+
+        // alien_pixel = alien_pixel_value;
+        alien_pixel = |graphics_matrix;
     end
 
     always_ff @ (posedge clk or negedge rst_n) begin
