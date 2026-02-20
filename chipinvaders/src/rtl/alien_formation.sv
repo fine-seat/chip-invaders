@@ -18,6 +18,8 @@ module alien_formation #(
 
     // matrices representing individual alien status
     output logic [NUM_ROWS-1:0][NUM_COLUMNS-1:0] alive_matrix = '1,
+    output logic [NUM_ROWS-1:0][NUM_COLUMNS-1:0] graphics_matrix,
+    input  logic [NUM_ROWS-1:0][NUM_COLUMNS-1:0] kill_matrix,
     output logic alien_pixel
 );
 
@@ -26,7 +28,6 @@ module alien_formation #(
   logic movement_direction = 1;
   logic [15:0] movement_width = 1;
   logic [NUM_ROWS-1:0][NUM_COLUMNS-1:0] armed_matrix;
-  logic [NUM_ROWS-1:0][NUM_COLUMNS-1:0] graphics_matrix;
   logic [NUM_ROWS-1:0][NUM_COLUMNS-1:0] movement_matrix;
 
   // update armed-matrix based on alive-matrix
@@ -99,7 +100,8 @@ module alien_formation #(
       alive_matrix <= '1;
     end else begin
       level <= 1;
-      // basic level management
+      // Clear alive bits for hit aliens
+      alive_matrix <= alive_matrix & ~kill_matrix;
     end
   end
 
