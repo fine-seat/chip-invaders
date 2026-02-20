@@ -14,8 +14,8 @@
 		"vscode": {
 			"extensions": [
 				"mshr-h.veriloghdl",
+				"otjamin.verilogvga",
 				"ms-python.python"
-				"otjamin.verilogvga"
 			],
 			"settings": {
 				"verilog.languageServer.veribleVerilogLs.enabled": true,

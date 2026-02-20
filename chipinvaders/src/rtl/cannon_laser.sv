@@ -3,7 +3,6 @@ module cannon_laser #(
     parameter UPPER_BORDER = 100,
     parameter SCALING = 4
 ) (
-    input logic clock,
     input logic reset_n,
 
     input logic [9:0] vpos,
@@ -30,7 +29,7 @@ module cannon_laser #(
     if (!reset_n) begin
       laser_active <= 0;
     end else if (shoot && !laser_active) begin
-      laser_x <= cannon_x+(6*SCALING); // TODO: Center laser on cannon
+      laser_x <= cannon_x+(6); // TODO: Center laser on cannon
       laser_y <= CANNON_Y;
       laser_active <= 1;
     end else if (laser_active) begin
