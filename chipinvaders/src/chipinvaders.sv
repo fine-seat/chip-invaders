@@ -17,19 +17,19 @@ module chipinvaders (
 );
 
   // Generate a 25 MHz clock from the 100 MHz input
-  //logic [1:0] counter;
-  logic clk_25mhz;
+  logic [1:0] counter;
+//   logic clk_25mhz;
 
-  // always_ff @(posedge clk or negedge rst_n) begin
-  //   if (!rst_n) begin
-  //     counter <= 0;
-  //   end else begin
-  //     counter <= counter + 1;
-  //   end
-  // end
+  always_ff @(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin
+      counter <= 0;
+    end else begin
+      counter <= counter + 1;
+    end
+  end
 
-  // assign clk_25mhz = counter[1];
-  assign clk_25mhz = clk;
+  assign clk_25mhz = counter[1];
+//   assign clk_25mhz = clk;
 
 
   // VGA signals
@@ -90,8 +90,8 @@ module chipinvaders (
   logic alien_pixel;
 
   alien_formation #(
-      .NUM_ROWS(2),
-      .NUM_COLUMNS(4),
+      .NUM_ROWS(3),
+      .NUM_COLUMNS(5),
       .ALIEN_SPACING_X(64),
       .ALIEN_SPACING_Y(32),
       .INITIAL_POSITION_X(100),
