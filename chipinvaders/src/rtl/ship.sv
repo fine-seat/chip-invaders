@@ -8,15 +8,25 @@ module ship (
     input  logic [9:0] pix_y,
     input  logic       move_left,
     input  logic       move_right,
-    output logic [9:0] ship_x_pos, // Current X position for bullet spawning
-    output logic       ship_on      // Pixel output signal for the VGA mixer
+    input  logic [3:0] scale,        // Scaling factor (1, 2, 4, etc.)
+    output logic [9:0] ship_x_pos,   // Current X position for bullet spawning
+    output logic       ship_on       // Pixel output signal for the VGA mixer
 );
 
-    // Ship Configuration
-    localparam logic [9:0] SHIP_Y  = 10'd440; // Fixed vertical position near bottom
-    localparam logic [9:0] SPEED   = 10'd4;   // Movement speed (pixels per frame)
-    localparam int         WIDTH   = 13;      // Sprite width
-    localparam int         HEIGHT  = 8;       // Sprite height
+    // Original Sprite Dimensions (Unscaled)
+    localparam int BASE_WIDTH  = 13;
+    localparam int BASE_HEIGHT = 8;
+    
+    // Position and Speed
+    localparam logic [9:0] SHIP_Y  = 10'd440;
+    localparam logic [9:0] SPEED   = 10'd4;
+
+    // Logic to calculate current scaled size
+    logic [9:0] scaled_width;
+    logic [9:0] scaled_height;
+    
+    assign scaled_width  = BASE_WIDTH  * scale;
+    assign scaled_height = BASE_HEIGHT * scale;
 
     logic [9:0] x_reg;
 
@@ -28,7 +38,7 @@ module ship (
         end else begin
             if (move_left && x_reg > SPEED) 
                 x_reg <= x_reg - SPEED;
-            else if (move_right && x_reg < (10'd640 - WIDTH)) 
+            else if (move_right && x_reg < (10'd640 - scaled_width)) 
                 x_reg <= x_reg + SPEED;
         end
     end
@@ -50,17 +60,15 @@ module ship (
         ship_bitmap[7] = 13'b1111111111111; // ############# 
     end
 
-    // --- RENDERING LOGIC ---
+    // --- RENDERING LOGIC WITH SCALING ---
     always_comb begin
-        // Check if the current beam (pix_x, pix_y) is inside the ship's bounding box
-        if (pix_x >= x_reg && pix_x < x_reg + WIDTH && 
-            pix_y >= SHIP_Y && pix_y < SHIP_Y + HEIGHT) begin
+        // Check if current beam is inside the scaled bounding box
+        if (pix_x >= x_reg && pix_x < x_reg + scaled_width && 
+            pix_y >= SHIP_Y && pix_y < SHIP_Y + scaled_height) begin
             
-            // Access the specific bit in the bitmap:
-            // 1. [pix_y - SHIP_Y] selects the row (0 to 7)
-            // 2. [12 - (pix_x - x_reg)] selects the column (0 to 12)
-            // Subtracting from 12 ensures the MSB is drawn on the left (prevents mirroring)
-            ship_on = ship_bitmap[pix_y - SHIP_Y][12 - (pix_x - x_reg)];
+            // Map screen coordinates back to bitmap coordinates using scale factor
+            // Division by scale stretches the pixels
+            ship_on = ship_bitmap[(pix_y - SHIP_Y) / scale][12 - ((pix_x - x_reg) / scale)];
             
         end else begin
             ship_on = 1'b0;

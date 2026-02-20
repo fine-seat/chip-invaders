@@ -61,7 +61,8 @@ module chipinvaders (
       .move_left(btn_l),
       .move_right(btn_r),
       .ship_x_pos(cannon_x),
-      .ship_on(cannon_gfx)
+      .ship_on(cannon_gfx),
+      .scale(4)
   );
 
   logic laser_active;
@@ -105,14 +106,27 @@ module chipinvaders (
       .alien_pixel(alien_pixel)
   );
 
+  // Scoreboard and Lives
+  logic [1:0] lives = 3;
+  logic [7:0] score;
+  logic [2:0] hud_rgb;
+
+  hud hud (
+      .pix_x(hpos),
+      .pix_y(vpos),
+      .lives(lives),
+      .score(score),
+      .scale(2),
+      .rgb  (hud_rgb)
+  );
+
   // RGB output logic
-  assign vga_r  = (display_on && laser_gfx) ? 4'b1111 : 4'b0000;
-  assign vga_g  = (display_on && cannon_gfx) ? 4'b1111 : 4'b0000;
-  assign vga_b  = (display_on && alien_pixel) ? 4'b1111 : 4'b0000;
+  assign vga_r  = (display_on && (laser_gfx || hud_rgb[2])) ? 4'b1111 : 4'b0000;
+  assign vga_g  = (display_on && (cannon_gfx || hud_rgb[1])) ? 4'b1111 : 4'b0000;
+  assign vga_b  = (display_on && hud_rgb[0]) ? 4'b1111 : 4'b0000;
 
   assign vga_hs = hsync;
   assign vga_vs = vsync;
-
 
   // Suppress unused signals warning
   wire _unused_ok_ = &{laser_active, laser_x, laser_y, alive_matrix};
