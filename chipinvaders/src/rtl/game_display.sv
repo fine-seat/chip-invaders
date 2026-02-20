@@ -1,7 +1,4 @@
-`default_nettype none
-
 module game_display (
-    input  logic       clk,
     input  logic       rst_n,
     input  logic       v_sync,
     input  logic [9:0] pix_x,
@@ -10,9 +7,13 @@ module game_display (
     input  logic       blink_signal,
     output logic [1:0] r,
     output logic [1:0] g,
-    output logic [1:0] b,
-    output logic       display_on
+    output logic [1:0] b
+    //output logic       display_on
 );
+
+    // --- STATE PARAMETERS ---
+    localparam logic [1:0] STATE_MENU = 2'd0;
+    localparam logic [1:0] STATE_END = 2'd2;
 
     // --- ANIMATION LOGIC (Typing & Scanline) ---
     logic [3:0] type_timer;
@@ -26,7 +27,7 @@ module game_display (
             color_anim <= 3'd0;
         end else begin
             color_anim <= color_anim + 1'b1;
-            if (state == 2'b00) begin
+            if (state == STATE_MENU) begin
                 if (char_limit < 5'd17) begin
                     if (type_timer == 4'd8) begin
                         type_timer <= 4'd0;
@@ -43,17 +44,17 @@ module game_display (
     // --- HELPER FUNCTIONS ---
     function automatic logic draw_char(logic [23:0] code, logic [9:0] px, logic [9:0] py, logic [9:0] ox, logic [9:0] oy);
         if (px >= ox && px < ox + 32 && py >= oy && py < oy + 48)
-            return code[23 - (((py - oy) >> 3) * 4 + ((px - ox) >> 3))];
+            draw_char = code[23 - (((py - oy) >> 3) * 4 + ((px - ox) >> 3))];
         else
-            return 1'b0;
+            draw_char = 1'b0;
     endfunction
 
     function automatic logic draw_sprite(logic [12:0] row_data, logic [9:0] px, logic [9:0] ox, logic [9:0] scale);
         // 13 bits max width for ship
         if (px >= ox && px < ox + (13 * scale))
-            return row_data[12 - ((px - ox) / scale)];
+            draw_sprite = row_data[12 - ((px - ox) / scale)];
         else
-            return 1'b0;
+            draw_sprite = 1'b0;
     endfunction
 
     // --- FONTS ---
@@ -93,6 +94,7 @@ module game_display (
     // --- ELEMENT SIGNALS ---
     logic title_on, play_on, game_over_on, restart_on, cover_ship_on, cover_aliens_on, cover_bullets_on, hit_effect_on;
     logic end_aliens_on;
+    logic pix_y_bit2;
 
     // --- TITLE (MENU) ---
     localparam logic [9:0] TY = 10'd40; 
@@ -162,28 +164,40 @@ module game_display (
         draw_char(f_A, pix_x, pix_y, RX+10'd160, RY) || draw_char(f_R, pix_x, pix_y, RX+10'd200, RY) ||
         draw_char(f_T, pix_x, pix_y, RX+10'd240, RY));
 
+    // --- BIT EXTRACTION ---
+    assign pix_y_bit2 = pix_y[2];
+
     // --- COLOR MIXER ---
     always_comb begin
-        r = 2'd0; g = 2'd0; b = 2'd0;
-        if (state == 2'd0) begin // MENU
+        r = 2'd0; g = 2'd0; b = 2'd0;  // Default assignment
+        if (state == STATE_MENU) begin // MENU
             if (title_on || play_on || cover_aliens_on) begin
-                r = 2'b11; g = 2'b11; b = 2'b11;
+                r = 2'b11;
+                g = 2'b11;
+                b = 2'b11;
             end else if (cover_ship_on) begin
-                r = 2'b00; g = 2'b11; b = 2'b00;
+                r = 2'b00;
+                g = 2'b11;
+                b = 2'b00;
             end else if (cover_bullets_on || hit_effect_on) begin
-                r = 2'b11; g = 2'b00; b = 2'b00;
+                r = 2'b11;
+                g = 2'b00;
+                b = 2'b00;
             end
-        end else if (state == 2'd2) begin // END
+        end else if (state == STATE_END) begin // END
             if (game_over_on) begin
-                r = (pix_y[2]) ? 2'b11 : 2'b10;
-                g = 2'b00; b = 2'b00;
+                r = (pix_y_bit2) ? 2'b11 : 2'b10;
+                g = 2'b00;
+                b = 2'b00;
             end else if (restart_on || end_aliens_on) begin
-                r = 2'b11; g = 2'b11; b = 2'b11;
+                r = 2'b11;
+                g = 2'b11;
+                b = 2'b11;
             end
         end
     end
 
-    assign display_on = (state == 2'd0 && (title_on || play_on || cover_ship_on || cover_aliens_on || cover_bullets_on || hit_effect_on)) || 
-                        (state == 2'd2 && (game_over_on || restart_on || end_aliens_on));
+    // assign display_on = (state == STATE_MENU && (title_on || play_on || cover_ship_on || cover_aliens_on || cover_bullets_on || hit_effect_on)) || 
+    //                     (state == STATE_END && (game_over_on || restart_on || end_aliens_on));
 
 endmodule

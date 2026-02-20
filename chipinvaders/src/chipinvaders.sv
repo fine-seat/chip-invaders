@@ -49,6 +49,9 @@ module chipinvaders (
       .vpos(vpos)
   );
 
+  // All game signals
+  logic reset_game;
+
   // Cannon modules
   logic [9:0] cannon_x;
   logic cannon_gfx;
@@ -88,7 +91,7 @@ module chipinvaders (
 
   // Scoreboard and Lives
   logic [1:0] lives = 3;
-  logic [7:0] score;
+  logic [7:0] score = 10;
   logic [2:0] hud_rgb;
 
   hud hud (
@@ -100,11 +103,43 @@ module chipinvaders (
       .rgb  (hud_rgb)
   );
 
+  // Game Start and Game Over
+  logic [1:0] game_state;  // 00 = start, 01 = playing, 10 = game over
+  logic blink_signal;
+  logic [1:0] disp_r;
+  logic [1:0] disp_g;
+  logic [1:0] disp_b;
+
+  game_display game_disp (
+      .rst_n(rst_n),
+      .v_sync(vsync),
+      .pix_x(hpos),
+      .pix_y(vpos),
+      .state(game_state),
+      .blink_signal(blink_signal),
+      .r(disp_r),
+      .g(disp_g),
+      .b(disp_b)
+  );
+
+  logic game_over_trigger = (lives == 0);
+
+  game_state_machine state_machine (
+      .rst_n(rst_n),
+      .v_sync(vsync),
+      .trigger_in(btn_u),
+      .game_over_trigger(game_over_trigger),
+      .state(game_state),
+      .blink_signal(blink_signal),
+      .reset_game(reset_game)
+  );
 
   // RGB output logic
-  assign vga_r  = (display_on && (laser_gfx || hud_rgb[2])) ? 4'b1111 : 4'b0000;
-  assign vga_g  = (display_on && (cannon_gfx || hud_rgb[1])) ? 4'b1111 : 4'b0000;
-  assign vga_b  = (display_on && hud_rgb[0]) ? 4'b1111 : 4'b0000;
+  logic game_gfx = laser_gfx || cannon_gfx;
+
+  assign vga_r  = (display_on && (laser_gfx || hud_rgb[2] || disp_r[1])) ? 4'b1111 : 4'b0000;
+  assign vga_g  = (display_on && (cannon_gfx || hud_rgb[1] || disp_g[1])) ? 4'b1111 : 4'b0000;
+  assign vga_b  = (display_on && (hud_rgb[0] || disp_b[1])) ? 4'b1111 : 4'b0000;
 
   assign vga_hs = hsync;
   assign vga_vs = vsync;

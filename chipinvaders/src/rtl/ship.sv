@@ -1,7 +1,6 @@
 `default_nettype none
 
 module ship (
-    input  logic       clk,
     input  logic       rst_n,
     input  logic       v_sync,
     input  logic [9:0] pix_x,
