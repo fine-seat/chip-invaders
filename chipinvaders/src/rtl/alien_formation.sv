@@ -3,8 +3,8 @@ module alien_formation #(
     parameter logic [15:0] NUM_COLUMNS = 4,
     parameter logic [15:0] ALIEN_SPACING_X = 64,
     parameter logic [15:0] ALIEN_SPACING_Y = 32,
-    parameter logic [15:0] START_X = 100,
-    parameter logic [15:0] START_Y = 50
+    parameter logic [15:0] INITIAL_POSITION_X = 100,
+    parameter logic [15:0] INITIAL_POSITION_Y = 50
 )(
     input logic clk,
     input logic rst_n,
@@ -45,8 +45,8 @@ module alien_formation #(
             for (column = 0; column < NUM_COLUMNS; column++) begin : g_alien_cols
 
                 // calculate initial position for each alien
-                localparam logic [15:0] InitialPositionX = START_X + (column * ALIEN_SPACING_X);
-                localparam logic [15:0] InitialPositionY = START_Y + (row * ALIEN_SPACING_Y);
+                localparam logic [15:0] InitialPositionX = INITIAL_POSITION_X + (column * ALIEN_SPACING_X);
+                localparam logic [15:0] InitialPositionY = INITIAL_POSITION_Y + (row * ALIEN_SPACING_Y);
 
                 // create aliens
                 alien #(
