@@ -13,7 +13,8 @@ module hud (
     input  logic [1:0] lives,      // Current player lives (0-3)
     input  logic [13:0] score,     // Current player score (0-9999)
     input  logic [3:0] scale,      // Scaling factor (e.g., 2, 4)
-    output logic [2:0] rgb         // RGB output [2]=R, [1]=G, [0]=B
+    output logic        label_on,   // High when a "SCORE:" label pixel is active
+    output logic        value_on    // High when a score digit or lives icon pixel is active
 );
 
     // --- DIMENSIONS AND POSITIONS ---
@@ -27,8 +28,8 @@ module hud (
     localparam logic [9:0] LIVES_X_START = 10'd500;
 
     // --- DIGIT BITMAP FUNCTION (5 wide x 7 tall, bit 4 = leftmost column) ---
-    function automatic logic [4:0] digit_row(input logic [3:0] d, input logic [2:0] r);
-        case ({d, r})
+    function automatic logic [4:0] digit_row(input logic [3:0] d, input logic [2:0] row);
+        case ({d, row})
             {4'd0,3'd0}: digit_row=5'b01110; {4'd0,3'd1}: digit_row=5'b10001;
             {4'd0,3'd2}: digit_row=5'b10001; {4'd0,3'd3}: digit_row=5'b10001;
             {4'd0,3'd4}: digit_row=5'b10001; {4'd0,3'd5}: digit_row=5'b10001;
@@ -106,7 +107,8 @@ module hud (
     // --- RENDERING LOGIC ---
     always_comb begin
         letter_on = 1'b0;
-        rgb = 3'b000; // Default: transparent/black
+        label_on = 1'b0;
+        value_on = 1'b0;
         rel_x = 10'b0;
         rel_y = 10'b0;
         ship_rel_x = 10'b0;
@@ -167,7 +169,7 @@ module hud (
                      pix_x < SCORE_X_START + (scaled_char_w * 8)) begin
                 letter_on = (rel_y == 2 || rel_y == 5);
             end
-            if (letter_on) rgb = 3'b111; // White text for "SCORE:"
+            if (letter_on) label_on = 1'b1; // "SCORE:" label
 
             // Render score value digits (green, no leading zeros)
             // Digit slots spaced 1.5×char_w apart:
@@ -236,7 +238,7 @@ module hud (
                 rel_x = slot_x / 10'(scale);
                 digit_row_bits = digit_row(disp_digit, rel_y[2:0]);
                 if (digit_row_bits[4 - rel_x[2:0]])
-                    rgb = 3'b010; // Green score
+                    value_on = 1'b1; // score digit
             end
         end
 
@@ -248,17 +250,17 @@ module hud (
             if (lives >= 1 && pix_x >= LIVES_X_START &&
                 pix_x < LIVES_X_START + scaled_ship_w) begin
                 ship_rel_x = (pix_x - LIVES_X_START) / 10'(scale);
-                if (ship_bitmap[ship_rel_y[2:0]][12 - ship_rel_x[3:0]]) rgb = 3'b100; // Red
+                if (ship_bitmap[ship_rel_y[2:0]][12 - ship_rel_x[3:0]]) value_on = 1'b1; // life 1
             end
             else if (lives >= 2 && pix_x >= LIVES_X_START + ((scaled_ship_w * 3) >> 1) &&
                      pix_x < LIVES_X_START + ((scaled_ship_w * 5) >> 1)) begin
                 ship_rel_x = (pix_x - (LIVES_X_START + ((scaled_ship_w * 3) >> 1))) / 10'(scale);
-                if (ship_bitmap[ship_rel_y[2:0]][12 - ship_rel_x[3:0]]) rgb = 3'b100;
+                if (ship_bitmap[ship_rel_y[2:0]][12 - ship_rel_x[3:0]]) value_on = 1'b1;
             end
             else if (lives >= 3 && pix_x >= LIVES_X_START + (scaled_ship_w * 3) &&
                      pix_x < LIVES_X_START + (scaled_ship_w * 4)) begin
                 ship_rel_x = (pix_x - (LIVES_X_START + (scaled_ship_w * 3))) / 10'(scale);
-                if (ship_bitmap[ship_rel_y[2:0]][12 - ship_rel_x[3:0]]) rgb = 3'b100;
+                if (ship_bitmap[ship_rel_y[2:0]][12 - ship_rel_x[3:0]]) value_on = 1'b1;
             end
         end
     end

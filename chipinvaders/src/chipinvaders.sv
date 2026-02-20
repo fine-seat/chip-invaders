@@ -15,7 +15,6 @@ module chipinvaders (
     output logic vga_hs,
     output logic vga_vs
 );
-
   // Generate a 25 MHz clock from the 100 MHz input
   //logic [1:0] counter;
   logic clk_25mhz;
@@ -31,6 +30,12 @@ module chipinvaders (
   // assign clk_25mhz = counter[1];
   assign clk_25mhz = clk;
 
+  // Colors
+  localparam logic [11:0] CannonColor = 12'b0100_1001_0000;
+  localparam logic [11:0] LaserColor = 12'b1111_1001_0011;
+  localparam logic [11:0] AlienColorA = 12'b0110_0110_1111;
+  localparam logic [11:0] AlienColorB = 12'b1010_0110_1111;
+  localparam logic [11:0] AlienColorC = 12'b1111_0110_1111;
 
   // VGA signals
   logic hsync;
@@ -51,6 +56,7 @@ module chipinvaders (
 
   // All game signals
   logic reset_game;
+  logic [1:0] game_state;  // 00 = start, 01 = playing, 10 = game over
 
   // Cannon modules
   logic [9:0] cannon_x;
@@ -91,20 +97,26 @@ module chipinvaders (
 
   // Scoreboard and Lives
   logic [1:0] lives = 3;
-  logic [13:0] score = 190;
-  logic [2:0] hud_rgb;
+  logic [13:0] score;
+  logic hud_label_on;
+  logic hud_value_on;
+
+  always_ff @(posedge reset_game) begin
+    lives <= 3;  // Reset to 3 lives at the start of the game
+    score <= 0;
+  end
 
   hud hud (
-      .pix_x(hpos),
-      .pix_y(vpos),
-      .lives(lives),
-      .score(score),
-      .scale(2),
-      .rgb  (hud_rgb)
+      .pix_x   (hpos),
+      .pix_y   (vpos),
+      .lives   (lives),
+      .score   (score),
+      .scale   (2),
+      .label_on(hud_label_on),
+      .value_on(hud_value_on)
   );
 
   // Game Start and Game Over
-  logic [1:0] game_state;  // 00 = start, 01 = playing, 10 = game over
   logic blink_signal;
   logic [1:0] disp_r;
   logic [1:0] disp_g;
@@ -135,11 +147,36 @@ module chipinvaders (
   );
 
   // RGB output logic
-  logic game_gfx = laser_gfx || cannon_gfx;
-
-  assign vga_r  = (display_on && (laser_gfx || hud_rgb[2] || disp_r[1])) ? 4'b1111 : 4'b0000;
-  assign vga_g  = (display_on && (cannon_gfx || hud_rgb[1] || disp_g[1])) ? 4'b1111 : 4'b0000;
-  assign vga_b  = (display_on && (hud_rgb[0] || disp_b[1])) ? 4'b1111 : 4'b0000;
+  always_comb begin
+    vga_r = 0;
+    vga_g = 0;
+    vga_b = 0;
+    if (display_on) begin
+      if ((game_state == 2'b00) || (game_state == 2'b10)) begin
+        vga_r = {disp_r, 2'b00};
+        vga_g = {disp_g, 2'b00};
+        vga_b = {disp_b, 2'b00};
+      end else begin
+        if (cannon_gfx) begin
+          vga_r = CannonColor[11:8];
+          vga_g = CannonColor[7:4];
+          vga_b = CannonColor[3:0];
+        end else if (laser_gfx) begin
+          vga_r = LaserColor[11:8];
+          vga_g = LaserColor[7:4];
+          vga_b = LaserColor[3:0];
+        end else if (hud_label_on) begin
+          vga_r = 4'b1111;
+          vga_g = 4'b1111;
+          vga_b = 4'b1111;
+        end else if (hud_value_on) begin
+          vga_r = CannonColor[11:8];
+          vga_g = CannonColor[7:4];
+          vga_b = CannonColor[3:0];
+        end
+      end
+    end
+  end
 
   assign vga_hs = hsync;
   assign vga_vs = vsync;
