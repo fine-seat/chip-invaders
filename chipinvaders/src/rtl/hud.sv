@@ -11,7 +11,7 @@ module hud (
     input  logic [9:0] pix_x,      // Current beam X position
     input  logic [9:0] pix_y,      // Current beam Y position
     input  logic [1:0] lives,      // Current player lives (0-3)
-    input  logic [7:0] score,      // Current player score (0-255)
+    input  logic [13:0] score,     // Current player score (0-9999)
     input  logic [3:0] scale,      // Scaling factor (e.g., 2, 4)
     output logic [2:0] rgb         // RGB output [2]=R, [1]=G, [0]=B
 );
@@ -26,12 +26,64 @@ module hud (
     localparam logic [9:0] SCORE_X_START = 10'd40;
     localparam logic [9:0] LIVES_X_START = 10'd500;
 
+    // --- DIGIT BITMAP FUNCTION (5 wide x 7 tall, bit 4 = leftmost column) ---
+    function automatic logic [4:0] digit_row(input logic [3:0] d, input logic [2:0] r);
+        case ({d, r})
+            {4'd0,3'd0}: digit_row=5'b01110; {4'd0,3'd1}: digit_row=5'b10001;
+            {4'd0,3'd2}: digit_row=5'b10001; {4'd0,3'd3}: digit_row=5'b10001;
+            {4'd0,3'd4}: digit_row=5'b10001; {4'd0,3'd5}: digit_row=5'b10001;
+            {4'd0,3'd6}: digit_row=5'b01110;
+            {4'd1,3'd0}: digit_row=5'b00100; {4'd1,3'd1}: digit_row=5'b01100;
+            {4'd1,3'd2}: digit_row=5'b00100; {4'd1,3'd3}: digit_row=5'b00100;
+            {4'd1,3'd4}: digit_row=5'b00100; {4'd1,3'd5}: digit_row=5'b00100;
+            {4'd1,3'd6}: digit_row=5'b01110;
+            {4'd2,3'd0}: digit_row=5'b01110; {4'd2,3'd1}: digit_row=5'b10001;
+            {4'd2,3'd2}: digit_row=5'b00001; {4'd2,3'd3}: digit_row=5'b00110;
+            {4'd2,3'd4}: digit_row=5'b01000; {4'd2,3'd5}: digit_row=5'b10000;
+            {4'd2,3'd6}: digit_row=5'b11111;
+            {4'd3,3'd0}: digit_row=5'b01110; {4'd3,3'd1}: digit_row=5'b10001;
+            {4'd3,3'd2}: digit_row=5'b00001; {4'd3,3'd3}: digit_row=5'b00110;
+            {4'd3,3'd4}: digit_row=5'b00001; {4'd3,3'd5}: digit_row=5'b10001;
+            {4'd3,3'd6}: digit_row=5'b01110;
+            {4'd4,3'd0}: digit_row=5'b10001; {4'd4,3'd1}: digit_row=5'b10001;
+            {4'd4,3'd2}: digit_row=5'b10001; {4'd4,3'd3}: digit_row=5'b11111;
+            {4'd4,3'd4}: digit_row=5'b00001; {4'd4,3'd5}: digit_row=5'b00001;
+            {4'd4,3'd6}: digit_row=5'b00001;
+            {4'd5,3'd0}: digit_row=5'b11111; {4'd5,3'd1}: digit_row=5'b10000;
+            {4'd5,3'd2}: digit_row=5'b10000; {4'd5,3'd3}: digit_row=5'b11110;
+            {4'd5,3'd4}: digit_row=5'b00001; {4'd5,3'd5}: digit_row=5'b00001;
+            {4'd5,3'd6}: digit_row=5'b11110;
+            {4'd6,3'd0}: digit_row=5'b01110; {4'd6,3'd1}: digit_row=5'b10000;
+            {4'd6,3'd2}: digit_row=5'b10000; {4'd6,3'd3}: digit_row=5'b11110;
+            {4'd6,3'd4}: digit_row=5'b10001; {4'd6,3'd5}: digit_row=5'b10001;
+            {4'd6,3'd6}: digit_row=5'b01110;
+            {4'd7,3'd0}: digit_row=5'b11111; {4'd7,3'd1}: digit_row=5'b00001;
+            {4'd7,3'd2}: digit_row=5'b00010; {4'd7,3'd3}: digit_row=5'b00100;
+            {4'd7,3'd4}: digit_row=5'b01000; {4'd7,3'd5}: digit_row=5'b01000;
+            {4'd7,3'd6}: digit_row=5'b01000;
+            {4'd8,3'd0}: digit_row=5'b01110; {4'd8,3'd1}: digit_row=5'b10001;
+            {4'd8,3'd2}: digit_row=5'b10001; {4'd8,3'd3}: digit_row=5'b01110;
+            {4'd8,3'd4}: digit_row=5'b10001; {4'd8,3'd5}: digit_row=5'b10001;
+            {4'd8,3'd6}: digit_row=5'b01110;
+            {4'd9,3'd0}: digit_row=5'b01110; {4'd9,3'd1}: digit_row=5'b10001;
+            {4'd9,3'd2}: digit_row=5'b10001; {4'd9,3'd3}: digit_row=5'b01111;
+            {4'd9,3'd4}: digit_row=5'b00001; {4'd9,3'd5}: digit_row=5'b00001;
+            {4'd9,3'd6}: digit_row=5'b01110;
+            default:     digit_row=5'b00000;
+        endcase
+    endfunction
+
     // --- INTERNAL SIGNALS ---
     logic letter_on;
     logic [9:0] scaled_char_w, scaled_char_h;
     logic [9:0] scaled_ship_w, scaled_ship_h;
     logic [9:0] rel_x, rel_y;
     logic [9:0] ship_rel_x, ship_rel_y;
+    logic [3:0] score_d3, score_d2, score_d1, score_d0; // thousands, hundreds, tens, ones
+    logic [9:0] digit_x_base;                 // x start of score digit area
+    logic [3:0] disp_digit;                   // digit value currently being rendered
+    logic [9:0] slot_x;                       // x offset within the current digit slot
+    logic [4:0] digit_row_bits;               // scratch: one row of the current digit
 
     assign scaled_char_w = 10'(CHAR_WIDTH  * scale);
     assign scaled_char_h = 10'(CHAR_HEIGHT * scale);
@@ -59,6 +111,14 @@ module hud (
         rel_y = 10'b0;
         ship_rel_x = 10'b0;
         ship_rel_y = 10'b0;
+        score_d3 = 4'(32'(score) / 1000);
+        score_d2 = 4'((32'(score) % 1000) / 100);
+        score_d1 = 4'((32'(score) % 100) / 10);
+        score_d0 = 4'(32'(score) % 10);
+        digit_x_base = SCORE_X_START + ((scaled_char_w * 17) >> 1);
+        disp_digit = 4'hF; // sentinel: no digit
+        slot_x = 10'b0;
+        digit_row_bits = 5'b00000;
 
         // --- SCORE SECTION (Characters) ---
         if (pix_y >= HUD_Y_POS && pix_y < HUD_Y_POS + scaled_char_h) begin
@@ -107,15 +167,77 @@ module hud (
                      pix_x < SCORE_X_START + (scaled_char_w * 8)) begin
                 letter_on = (rel_y == 2 || rel_y == 5);
             end
-            // Render "0" (Static score digit)
-            else if (pix_x >= SCORE_X_START + ((scaled_char_w * 17) >> 1) &&
-                     pix_x < SCORE_X_START + ((scaled_char_w * 19) >> 1)) begin
-                rel_x = (pix_x - (SCORE_X_START + ((scaled_char_w * 17) >> 1))) / 10'(scale);
-                if (rel_y==0 || rel_y==6) letter_on = (rel_x > 0 && rel_x < 4);
-                else letter_on = (rel_x == 0 || rel_x == 4);
+            if (letter_on) rgb = 3'b111; // White text for "SCORE:"
+
+            // Render score value digits (green, no leading zeros)
+            // Digit slots spaced 1.5×char_w apart:
+            //   slot 0 → digit_x_base
+            //   slot 1 → +1.5cw
+            //   slot 2 → +3cw
+            //   slot 3 → +4.5cw
+            disp_digit = 4'hF;
+            slot_x     = 10'b0;
+
+            if (score >= 1000) begin
+                // Four digits: thousands | hundreds | tens | ones
+                if (pix_x >= digit_x_base &&
+                    pix_x <  digit_x_base + scaled_char_w) begin
+                    disp_digit = score_d3;
+                    slot_x     = pix_x - digit_x_base;
+                end else if (pix_x >= digit_x_base + ((scaled_char_w * 3) >> 1) &&
+                             pix_x <  digit_x_base + ((scaled_char_w * 5) >> 1)) begin
+                    disp_digit = score_d2;
+                    slot_x     = pix_x - (digit_x_base + ((scaled_char_w * 3) >> 1));
+                end else if (pix_x >= digit_x_base + (scaled_char_w * 3) &&
+                             pix_x <  digit_x_base + (scaled_char_w * 4)) begin
+                    disp_digit = score_d1;
+                    slot_x     = pix_x - (digit_x_base + (scaled_char_w * 3));
+                end else if (pix_x >= digit_x_base + ((scaled_char_w * 9) >> 1) &&
+                             pix_x <  digit_x_base + ((scaled_char_w * 11) >> 1)) begin
+                    disp_digit = score_d0;
+                    slot_x     = pix_x - (digit_x_base + ((scaled_char_w * 9) >> 1));
+                end
+            end else if (score >= 100) begin
+                // Three digits: hundreds | tens | ones
+                if (pix_x >= digit_x_base &&
+                    pix_x <  digit_x_base + scaled_char_w) begin
+                    disp_digit = score_d2;
+                    slot_x     = pix_x - digit_x_base;
+                end else if (pix_x >= digit_x_base + ((scaled_char_w * 3) >> 1) &&
+                             pix_x <  digit_x_base + ((scaled_char_w * 5) >> 1)) begin
+                    disp_digit = score_d1;
+                    slot_x     = pix_x - (digit_x_base + ((scaled_char_w * 3) >> 1));
+                end else if (pix_x >= digit_x_base + (scaled_char_w * 3) &&
+                             pix_x <  digit_x_base + (scaled_char_w * 4)) begin
+                    disp_digit = score_d0;
+                    slot_x     = pix_x - (digit_x_base + (scaled_char_w * 3));
+                end
+            end else if (score >= 10) begin
+                // Two digits: tens | ones
+                if (pix_x >= digit_x_base &&
+                    pix_x <  digit_x_base + scaled_char_w) begin
+                    disp_digit = score_d1;
+                    slot_x     = pix_x - digit_x_base;
+                end else if (pix_x >= digit_x_base + ((scaled_char_w * 3) >> 1) &&
+                             pix_x <  digit_x_base + ((scaled_char_w * 5) >> 1)) begin
+                    disp_digit = score_d0;
+                    slot_x     = pix_x - (digit_x_base + ((scaled_char_w * 3) >> 1));
+                end
+            end else begin
+                // One digit: ones
+                if (pix_x >= digit_x_base &&
+                    pix_x <  digit_x_base + scaled_char_w) begin
+                    disp_digit = score_d0;
+                    slot_x     = pix_x - digit_x_base;
+                end
             end
 
-            if (letter_on) rgb = 3'b110; // Yellow Text
+            if (disp_digit != 4'hF) begin
+                rel_x = slot_x / 10'(scale);
+                digit_row_bits = digit_row(disp_digit, rel_y[2:0]);
+                if (digit_row_bits[4 - rel_x[2:0]])
+                    rgb = 3'b010; // Green score
+            end
         end
 
         // --- LIVES SECTION (Mini Ships) ---
