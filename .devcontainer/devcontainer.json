@@ -15,6 +15,7 @@
 			"extensions": [
 				"mshr-h.veriloghdl",
 				"ms-python.python"
+				"otjamin.verilogvga"
 			],
 			"settings": {
 				"verilog.languageServer.veribleVerilogLs.enabled": true,
