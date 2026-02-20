@@ -62,7 +62,7 @@ module chipinvaders (
       .move_right(btn_r),
       .ship_x_pos(cannon_x),
       .ship_on(cannon_gfx),
-      .scale(4)
+      .scale(2)
   );
 
   logic laser_active;
@@ -91,8 +91,8 @@ module chipinvaders (
   logic alien_pixel;
 
   alien_formation #(
-      .NUM_ROWS(5),
-      .NUM_COLUMNS(8),
+      .NUM_ROWS(3),
+      .NUM_COLUMNS(5),
       // .INITIAL_POSITION_X(0),
       // .INITIAL_POSITION_Y(0)
   ) aliens (
