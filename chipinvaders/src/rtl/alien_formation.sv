@@ -1,13 +1,13 @@
 module alien_formation #(
     parameter logic [15:0] NUM_ROWS = 2,
     parameter logic [15:0] NUM_COLUMNS = 4,
-    parameter logic [15:0] ALIEN_SPACING_X = 8 * SCALING,
-    parameter logic [15:0] ALIEN_SPACING_Y = 8 * SCALING,
+    parameter logic [15:0] ALIEN_SPACING_X = 20 * SCALING,
+    parameter logic [15:0] ALIEN_SPACING_Y = 20 * SCALING,
     parameter logic [15:0] INITIAL_POSITION_X = 50,
     parameter logic [15:0] INITIAL_POSITION_Y = 50,
     parameter logic [15:0] MAX_POSITION_X = 640,
     parameter logic [15:0] MAX_POSITION_Y = 480,
-    parameter logic [15:0] SCALING = 4
+    parameter logic [15:0] SCALING = 2
 ) (
     input logic clk,
     input logic rst_n,
