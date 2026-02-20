@@ -3,7 +3,6 @@ module cannon_laser #(
     parameter UPPER_BORDER = 100,
     parameter SCALING = 4
 ) (
-    input logic clock,
     input logic reset_n,
 
     input logic [9:0] vpos,

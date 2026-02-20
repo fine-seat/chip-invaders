@@ -1,13 +1,11 @@
-`default_nettype none
-
 module game_state_machine (
-    input  logic       clk,
     input  logic       rst_n,
     input  logic       v_sync,
-    input  logic       trigger_in,         // Botón de disparo directo
-    input  logic       game_over_trigger,  // Señal externa de fin
+    input  logic       trigger_in,         // Direct trigger button
+    input  logic       game_over_trigger,  // External game over signal
     output logic [1:0] state,              // 0: MENU, 1: GAME, 2: END
-    output logic       blink_signal        // Señal para parpadeo
+    output logic       blink_signal,       // Blink signal
+    output logic       reset_game          // Reset signal for game components
 );
 
     localparam logic [1:0] STATE_MENU = 2'd0;
@@ -17,31 +15,38 @@ module game_state_machine (
     logic [5:0] blink_timer;
     assign blink_signal = blink_timer[5];
 
-    // Detector de flanco interno en vsync
+    // Internal state for edge detection
     logic prev_trigger;
-    wire trigger_pulse = trigger_in & ~prev_trigger;
 
     always_ff @(posedge v_sync or negedge rst_n) begin
         if (~rst_n) begin
             state <= STATE_MENU;
             blink_timer <= 6'd0;
             prev_trigger <= 1'b0;
+            reset_game <= 1'b0;
         end else begin
             blink_timer <= blink_timer + 1'b1;
-            prev_trigger <= trigger_in; // Guardamos el estado anterior
+            reset_game <= 1'b0; // Default: no reset
             
-            case (state)
-                STATE_MENU: begin
-                    if (trigger_pulse) state <= STATE_GAME;
-                end
-                STATE_GAME: begin
-                    if (game_over_trigger) state <= STATE_END;
-                end
-                STATE_END: begin
-                    if (trigger_pulse) state <= STATE_MENU;
-                end
-                default:   state <= STATE_MENU;
-            endcase
+            // Detect rising edge of trigger_in
+            if (trigger_in && !prev_trigger) begin
+                case (state)
+                    STATE_MENU: begin
+                        state <= STATE_GAME;
+                        reset_game <= 1'b1; // Reset game when starting
+                    end
+                    STATE_END: begin
+                        state <= STATE_MENU;
+                        reset_game <= 1'b1; // Reset when returning to menu
+                    end
+                    default: ; // Do nothing in GAME state
+                endcase
+            end
+            
+            // Check for game over
+            if (game_over_trigger) state <= STATE_END;
+            
+            prev_trigger <= trigger_in; // Save previous state
         end
     end
 
