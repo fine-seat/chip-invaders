@@ -94,8 +94,8 @@ module chipinvaders (
       .NUM_COLUMNS(4),
       .ALIEN_SPACING_X(64),
       .ALIEN_SPACING_Y(32),
-      .START_X(100),
-      .START_Y(50)
+      .INITIAL_POSITION_X(100),
+      .INITIAL_POSITION_Y(50)
   ) aliens (
       .clk(vsync),
       .rst_n(rst_n),
