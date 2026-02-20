@@ -1,6 +1,7 @@
 module alien #(
     parameter logic [15:0] INITIAL_POSITION_X = 0,
-    parameter logic [15:0] INITIAL_POSITION_Y = 0
+    parameter logic [15:0] INITIAL_POSITION_Y = 0,
+    parameter logic [15:0] MAX_POSITION_X = 640
 ) (
     input logic clk,
     input logic rst_n,
@@ -14,7 +15,8 @@ module alien #(
     input logic [15:0] scan_x,
     input logic [15:0] scan_y,
 
-    output logic graphics
+    output logic graphics,
+    output logic movement
 );
 
   // internal signals for next state
@@ -65,6 +67,10 @@ end
             next_position_x = position_x - movement_width;
         end
     end
+
+    movement = alive &&
+               (movement_counter >= movement_frequency) &&
+               (next_position_x+sprite_width >= MAX_POSITION_X || next_position_x == 0);
   end
 
   // sequential logic for state updates

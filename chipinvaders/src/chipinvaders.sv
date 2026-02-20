@@ -95,8 +95,8 @@ module chipinvaders (
       .NUM_COLUMNS(5),
       .ALIEN_SPACING_X(64),
       .ALIEN_SPACING_Y(32),
-      .INITIAL_POSITION_X(100),
-      .INITIAL_POSITION_Y(50)
+      // .INITIAL_POSITION_X(0),
+      // .INITIAL_POSITION_Y(0)
   ) aliens (
       .clk(vsync),
       .rst_n(rst_n),
@@ -123,7 +123,7 @@ module chipinvaders (
   // RGB output logic
   assign vga_r  = (display_on && (laser_gfx || hud_rgb[2])) ? 4'b1111 : 4'b0000;
   assign vga_g  = (display_on && (cannon_gfx || hud_rgb[1])) ? 4'b1111 : 4'b0000;
-  assign vga_b  = (display_on && hud_rgb[0]) ? 4'b1111 : 4'b0000;
+  assign vga_b  = (display_on && hud_rgb[0] | alien_pixel) ? 4'b1111 : 4'b0000;
 
   assign vga_hs = hsync;
   assign vga_vs = vsync;
