@@ -19,8 +19,9 @@ module alien_formation #(
 );
 
     logic [3:0] level;
-    logic [15:0] movement_frequency = 100;
+    logic [15:0] movement_frequency = 10;
     logic movement_direction = 1;
+    logic [15:0] movement_width = 10;
     logic [NUM_ROWS-1:0][NUM_COLUMNS-1:0] armed_matrix;
     logic [NUM_ROWS-1:0][NUM_COLUMNS-1:0] graphics_matrix;
 
@@ -57,6 +58,7 @@ module alien_formation #(
                     .rst_n(rst_n),
                     .alive(alive_matrix[row][column]),
                     .movement_frequency(movement_frequency),
+                    .movement_width(movement_width),
                     .movement_direction(movement_direction),
                     .armed(armed_matrix[row][column]),
                     .scan_x(scan_x),

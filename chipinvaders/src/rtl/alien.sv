@@ -8,6 +8,7 @@ module alien #(
     input logic alive,
     input logic [15:0] movement_frequency,
     input logic movement_direction, // 0 = left, 1 = right
+    input logic [15:0] movement_width,
     input logic armed, // 0 = unable to fire, 1 = capable of firing
 
     input logic [15:0] scan_x,
@@ -55,9 +56,9 @@ always_comb begin
     // move when counter reaches frequency threshold
     if (movement_counter >= movement_frequency && alive) begin
         if (movement_direction) begin
-            next_position_x = position_x + 1;
+            next_position_x = position_x + movement_width;
         end else begin
-            next_position_x = position_x - 1;
+            next_position_x = position_x - movement_width;
         end
     end else begin
         next_position_x = position_x;
