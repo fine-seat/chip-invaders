@@ -71,7 +71,7 @@ module chipinvaders (
       .move_right(btn_r),
       .ship_x_pos(cannon_x),
       .ship_on(cannon_gfx),
-      .scale(4)
+      .scale(2)
   );
 
   logic laser_active;
