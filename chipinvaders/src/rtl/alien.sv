@@ -1,7 +1,8 @@
 module alien #(
     parameter logic [15:0] INITIAL_POSITION_X = 0,
     parameter logic [15:0] INITIAL_POSITION_Y = 0,
-    parameter logic [15:0] MAX_POSITION_X = 640
+    parameter logic [15:0] MAX_POSITION_X = 640,
+    parameter logic [15:0] SCALING = 4
 ) (
     input logic clk,
     input logic rst_n,
@@ -41,8 +42,8 @@ logic signed [15:0] rel_x, rel_y;
 logic in_sprite_bounds;
 
 always_comb begin
-    rel_x = scan_x - position_x;
-    rel_y = scan_y - position_y;
+    rel_x = (scan_x - position_x) / SCALING;
+    rel_y = (scan_y - position_y) / SCALING;
 
     // Check if current scan position is within sprite bounds
     in_sprite_bounds = (rel_x >= 0) && (rel_x < sprite_width) &&
@@ -70,7 +71,7 @@ end
 
     movement = alive &&
                (movement_counter >= movement_frequency) &&
-               (next_position_x+sprite_width >= MAX_POSITION_X || next_position_x == 0);
+               (next_position_x+(sprite_width*SCALING) >= MAX_POSITION_X || next_position_x == 0);
   end
 
   // sequential logic for state updates
