@@ -91,7 +91,7 @@ module chipinvaders (
 
   // Scoreboard and Lives
   logic [1:0] lives = 3;
-  logic [7:0] score = 10;
+  logic [13:0] score = 190;
   logic [2:0] hud_rgb;
 
   hud hud (
