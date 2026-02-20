@@ -93,8 +93,6 @@ module chipinvaders (
   alien_formation #(
       .NUM_ROWS(3),
       .NUM_COLUMNS(5),
-      .ALIEN_SPACING_X(64),
-      .ALIEN_SPACING_Y(32),
       // .INITIAL_POSITION_X(0),
       // .INITIAL_POSITION_Y(0)
   ) aliens (
