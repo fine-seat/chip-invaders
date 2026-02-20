@@ -103,15 +103,15 @@ module chipinvaders (
   end
 
   // Cannon modules
-  ship cannon (
+  cannon cannon (
       .rst_n(rst_n),
       .v_sync(vsync),
       .pix_x(hpos),
       .pix_y(vpos),
       .move_left(btn_l),
       .move_right(btn_r),
-      .ship_x_pos(cannon_x),
-      .ship_on(cannon_gfx),
+      .cannon_x_pos(cannon_x),
+      .cannon_graphics(cannon_gfx),
       .scale(2)
   );
 

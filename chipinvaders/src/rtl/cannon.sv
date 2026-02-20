@@ -1,6 +1,6 @@
 `default_nettype none
 
-module ship (
+module cannon (
     input  logic       rst_n,
     input  logic       v_sync,
     input  logic [9:0] pix_x,
@@ -8,8 +8,8 @@ module ship (
     input  logic       move_left,
     input  logic       move_right,
     input  logic [3:0] scale,       // Scaling factor (1, 2, 4, etc.)
-    output logic [9:0] ship_x_pos,  // Current X position for bullet spawning
-    output logic       ship_on      // Pixel output signal for the VGA mixer
+    output logic [9:0] cannon_x_pos,  // Current X position for bullet spawning
+    output logic       cannon_graphics      // Pixel output signal for the VGA mixer
 );
 
   // Original Sprite Dimensions (Unscaled)
@@ -40,7 +40,7 @@ module ship (
     end
   end
 
-  assign ship_x_pos = x_reg;
+  assign cannon_x_pos = x_reg;
 
   // --- SPRITE ROM ---
   localparam int SPRITE_W = 16;
@@ -62,7 +62,7 @@ module ship (
     in_sprite_bounds = (rel_x >= 0) && (rel_x < SPRITE_W) && (rel_y >= 0) && (rel_y < SPRITE_H);
 
     // rel_y[3:0] statt [2:0] - brauchen 4 Bit für Index 0-15
-    ship_on = in_sprite_bounds ? ~sprite_rom[rel_y[3:0]][SPRITE_W-1-rel_x[3:0]] : 1'b0;
+    cannon_graphics = in_sprite_bounds ? ~sprite_rom[rel_y[3:0]][SPRITE_W-1-rel_x[3:0]] : 1'b0;
   end
 
 endmodule
