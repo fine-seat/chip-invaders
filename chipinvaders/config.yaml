@@ -34,11 +34,12 @@ DESIGN_NAME: top
 VERILOG_FILES:
 - src/top.sv
 - src/chipinvaders.sv
+- dir::src/rtl/*.sv
 
 USE_SLANG: true
 
 CLOCK_PERIOD: 25
-CLOCK_PORT: clk
+CLOCK_PORT: clk_PAD
 
 FP_SIZING: absolute
 DIE_AREA: [0, 0, 1200, 1200]
@@ -74,9 +75,9 @@ PAD_NORTH:
   - "vga_g_pads\\[0\\].vga_g_pad"
   - "vga_g_pads\\[1\\].vga_g_pad"
   - "vga_g_pads\\[2\\].vga_g_pad"
-  - "vga_g_pads\\[3\\].vga_g_pad"
 
 PAD_EAST:
+  - "vga_g_pads\\[3\\].vga_g_pad"
   - "vga_b_pads\\[0\\].vga_b_pad"
   - "vga_b_pads\\[1\\].vga_b_pad"
   - "vga_b_pads\\[2\\].vga_b_pad"
