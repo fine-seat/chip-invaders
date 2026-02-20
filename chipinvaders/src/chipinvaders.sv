@@ -16,19 +16,19 @@ module chipinvaders (
     output logic vga_vs
 );
   // Generate a 25 MHz clock from the 100 MHz input
-  //logic [1:0] counter;
+  logic [1:0] counter;
   logic clk_25mhz;
 
-  // always_ff @(posedge clk or negedge rst_n) begin
-  //   if (!rst_n) begin
-  //     counter <= 0;
-  //   end else begin
-  //     counter <= counter + 1;
-  //   end
-  // end
+  always_ff @(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin
+      counter <= 0;
+    end else begin
+      counter <= counter + 1;
+    end
+  end
 
-  // assign clk_25mhz = counter[1];
-  assign clk_25mhz = clk;
+  assign clk_25mhz = counter[1];
+  //assign clk_25mhz = clk;
 
   // Colors
   localparam logic [11:0] CannonColor = 12'b0100_1001_0000;
@@ -93,6 +93,22 @@ module chipinvaders (
       .laser_x(laser_x),
       .laser_y(laser_y),
       .laser_gfx(laser_gfx)
+  );
+
+  // Alien formation
+  logic [4:0][7:0] alive_matrix;
+  logic alien_pixel;
+
+  alien_formation #(
+      .NUM_ROWS(5),
+      .NUM_COLUMNS(8),
+  ) aliens (
+      .clk(vsync),
+      .rst_n(rst_n),
+      .scan_x(hpos),
+      .scan_y(vpos),
+      .alive_matrix(alive_matrix),
+      .alien_pixel(alien_pixel)
   );
 
   // Scoreboard and Lives
@@ -165,6 +181,10 @@ module chipinvaders (
           vga_r = LaserColor[11:8];
           vga_g = LaserColor[7:4];
           vga_b = LaserColor[3:0];
+        end else if (alien_pixel) begin
+          vga_r = AlienColorA[11:8];
+          vga_g = AlienColorA[7:4];
+          vga_b = AlienColorA[3:0];
         end else if (hud_label_on) begin
           vga_r = 4'b1111;
           vga_g = 4'b1111;
