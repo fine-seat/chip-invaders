@@ -7,12 +7,12 @@ Open the repo in the Devcontainer.
 ### Running the librelane flow
 1. Open a librelane nix-shell.
 ```sh
+cd chipinvaders/
 nix-shell librelane/
 ```
 
 2. To run the flow:
 ```sh
-cd chipinvaders/
 make librelane
 ```
 
