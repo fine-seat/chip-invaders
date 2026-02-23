@@ -23,5 +23,8 @@
 				"verilog.linting.linter": "verilator"
 			}
 		}
+	},
+	"containerEnv": {
+		"NIX_CONFIG": "connect-timeout = 60\nstalled-download-timeout = 300"
 	}
 }
