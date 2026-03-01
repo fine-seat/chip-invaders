@@ -93,6 +93,34 @@ module chipinvaders (
       .alien_pixel(alien_pixel)
   );
 
+  // Collision detection
+  logic hit_alien;
+  
+  collision_detection #(
+      .NUMBER_ROWS(number_rows),
+      .NUMBER_COLUMNS(number_columns),
+      .alien_sprite_width(16),
+      .alien_sprite_height(16),
+      .ALIEN_SCALING(2),
+      .projectile_sprite_width(1),
+      .projectile_sprite_height(4),
+      .PROJECTILE_SCALING(4)
+  ) collision_det (
+      .clk(clk_25mhz),
+      .rst_n(rst_n),
+      .alien_position_x_matrix(alien_position_x_matrix),
+      .alien_position_y_matrix(alien_position_y_matrix),
+      .laser_active(laser_active),
+      .laser_position_x(laser_x),
+      .laser_position_y(laser_y),
+      .hit_matrix(hit_matrix)
+  );
+
+  // Detect if any alien was hit
+  always_comb begin
+    hit_alien = |hit_matrix;
+  end
+
   // Cannon modules
   cannon cannon (
       .rst_n(rst_n),
@@ -115,7 +143,7 @@ module chipinvaders (
       .vsync(vsync),
       .shoot(btn_u),
       .cannon_x(cannon_x),
-      .hit_alien(1'b0),
+      .hit_alien(hit_alien),
       .laser_active(laser_active),
       .laser_x(laser_x),
       .laser_y(laser_y),

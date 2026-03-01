@@ -17,7 +17,9 @@ module alien #(
     input logic [15:0] scan_y,
 
     output logic graphics,
-    output logic movement
+    output logic movement,
+    output logic [15:0] current_position_x,
+    output logic [15:0] current_position_y
 );
 
   // internal signals for next state
@@ -28,6 +30,10 @@ module alien #(
 
   // movement counter for frequency control
   logic [15:0] movement_counter;
+
+  // Output current positions
+  assign current_position_x = position_x;
+  assign current_position_y = position_y;
 
   // Sprite ROM
 localparam logic [15:0] sprite_width = 16;
