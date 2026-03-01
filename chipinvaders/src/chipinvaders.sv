@@ -108,6 +108,7 @@ module chipinvaders (
   ) collision_det (
       .clk(clk_25mhz),
       .rst_n(rst_n),
+      .alive_matrix(alive_matrix),
       .alien_position_x_matrix(alien_position_x_matrix),
       .alien_position_y_matrix(alien_position_y_matrix),
       .laser_active(laser_active),

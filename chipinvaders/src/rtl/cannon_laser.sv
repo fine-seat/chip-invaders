@@ -1,6 +1,6 @@
 module cannon_laser #(
     parameter CANNON_Y = 470,
-    parameter UPPER_BORDER = 100,
+    parameter UPPER_BORDER = 50,
     parameter SCALING = 4
 ) (
     input logic reset_n,
