@@ -15,8 +15,8 @@ module cannon_laser #(
     input logic hit_alien,
 
     output logic laser_active,
-    output logic [9:0] laser_x,
-    output logic [9:0] laser_y,
+    output logic [15:0] laser_x,
+    output logic [15:0] laser_y,
 
     output logic laser_gfx
 );

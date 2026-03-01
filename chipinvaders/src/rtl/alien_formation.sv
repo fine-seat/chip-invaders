@@ -1,4 +1,3 @@
-
 module alien_formation #(
     parameter logic [15:0] NUMBER_ROWS = 2,
     parameter logic [15:0] NUMBER_COLUMNS = 4,
@@ -17,12 +16,12 @@ module alien_formation #(
     input logic [15:0] scan_x,
     input logic [15:0] scan_y,
 
-    output logic [NUMBER_ROWS-1:0][NUMBER_COLUMNS-1:0] hit_matrix,
+    input logic [NUMBER_ROWS-1:0][NUMBER_COLUMNS-1:0] hit_matrix,
 
     // matrices representing individual alien status
     output logic [NUMBER_ROWS-1:0][NUMBER_COLUMNS-1:0] alive_matrix = '1,
-    output logic [15:0] [NUMBER_ROWS-1:0][NUMBER_COLUMNS-1:0] alien_position_x_matrix,
-    output logic [15:0] [NUMBER_ROWS-1:0][NUMBER_COLUMNS-1:0] alien_position_y_matrix,
+    output logic [NUMBER_ROWS-1:0][NUMBER_COLUMNS-1:0][15:0] alien_position_x_matrix,
+    output logic [NUMBER_ROWS-1:0][NUMBER_COLUMNS-1:0][15:0] alien_position_y_matrix,
     output logic alien_pixel
 );
 
@@ -75,7 +74,9 @@ module alien_formation #(
             .scan_x(scan_x),
             .scan_y(scan_y),
             .graphics(graphics_matrix[row][column]),
-            .movement(movement_matrix[row][column])
+            .movement(movement_matrix[row][column]),
+            .current_position_x(alien_position_x_matrix[row][column]),
+            .current_position_y(alien_position_y_matrix[row][column])
         );
 
       end
@@ -101,10 +102,22 @@ module alien_formation #(
   always_ff @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
       level <= 0;
-      alive_matrix <= '1;
+      // Properly initialize all elements of the 2D matrix
+      for (int r = 0; r < NUMBER_ROWS; r++) begin
+        for (int c = 0; c < NUMBER_COLUMNS; c++) begin
+          alive_matrix[r][c] <= 1'b1;
+        end
+      end
     end else begin
       level <= 1;
-      // basic level management
+      // Remove hit aliens
+      for (int r = 0; r < NUMBER_ROWS; r++) begin
+        for (int c = 0; c < NUMBER_COLUMNS; c++) begin
+          if (hit_matrix[r][c]) begin
+            alive_matrix[r][c] <= 1'b0;
+          end
+        end
+      end
     end
   end
 
