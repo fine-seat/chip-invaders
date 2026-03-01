@@ -1,4 +1,3 @@
-
 module collision_detection #(
     parameter logic [15:0] NUMBER_ROWS = 2,
     parameter logic [15:0] NUMBER_COLUMNS = 4,
@@ -12,6 +11,7 @@ module collision_detection #(
     input logic clk,
     input logic rst_n,
 
+    input logic [NUMBER_ROWS-1:0][NUMBER_COLUMNS-1:0] alive_matrix,
     input logic [NUMBER_ROWS-1:0][NUMBER_COLUMNS-1:0][15:0] alien_position_x_matrix,
     input logic [NUMBER_ROWS-1:0][NUMBER_COLUMNS-1:0][15:0] alien_position_y_matrix,
     input logic laser_active,
@@ -31,8 +31,9 @@ module collision_detection #(
     if (laser_active) begin
       for (int r = 0; r < NUMBER_ROWS; r++) begin
         for (int c = 0; c < NUMBER_COLUMNS; c++) begin
-          // Check if laser overlaps with alien bounding box
-          if ((laser_position_x + laser_width > alien_position_x_matrix[r][c]) &&
+          // Only check collision if alien is alive
+          if (alive_matrix[r][c] &&
+              (laser_position_x + laser_width > alien_position_x_matrix[r][c]) &&
               (laser_position_x < alien_position_x_matrix[r][c] + alien_width) &&
               (laser_position_y + laser_height > alien_position_y_matrix[r][c]) &&
               (laser_position_y < alien_position_y_matrix[r][c] + alien_height)) begin
