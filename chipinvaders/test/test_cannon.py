@@ -1,5 +1,5 @@
 """
-Modern cocotb 2.0 testbench for the Controller module.
+Modern cocotb 2.0 testbench for the Cannon module.
 Uses async/await syntax and modern pythonic patterns.
 """
 
