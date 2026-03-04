@@ -99,7 +99,7 @@ async def test_sprite_graphics(dut):
             expected = tester.single_barrel_cannon[y][x]
             
             assert have == expected, (
-                f"test_move_right: Expected {expected}, got {have} "
+                f"test_sprite_graphics: Expected {expected}, got {have} "
                 f"at scan=({tester.init_hpos+x},{tester.init_vpos+y}) sprite=({x},{y})"
             )
     
