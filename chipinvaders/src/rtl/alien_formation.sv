@@ -28,14 +28,26 @@ module alien_formation #(
 
   logic [3:0] level;
   logic [15:0] movement_frequency = 1;
+  logic [7:0] alive_count;
   logic movement_direction_x = 1;
   logic movement_direction_y = 0;
-  logic [15:0] movement_width = 1;
+  logic [15:0] movement_width;
   logic frozen = 0;
   logic [NUMBER_ROWS-1:0][NUMBER_COLUMNS-1:0] armed_matrix;
   logic [NUMBER_ROWS-1:0][NUMBER_COLUMNS-1:0] graphics_matrix;
   logic [NUMBER_ROWS-1:0][NUMBER_COLUMNS-1:0] movement_matrix;
   logic [NUMBER_ROWS-1:0][NUMBER_COLUMNS-1:0] bottom_matrix;
+
+  // count alive aliens and set speed by adjusting step width
+  always_comb begin
+    alive_count = 0;
+    for (int r = 0; r < NUMBER_ROWS; r++) begin
+      for (int c = 0; c < NUMBER_COLUMNS; c++) begin
+        if (alive_matrix[r][c]) alive_count = alive_count + 1;
+      end
+    end
+    movement_width = (alive_count == 4) ? 6 : (alive_count == 16) ? 4 : 2;
+  end
 
   // update armed-matrix based on alive-matrix
   always_comb begin
@@ -110,7 +122,7 @@ module alien_formation #(
       end else begin
         movement_direction_y <= 0;
       end
-      
+
       // freeze all aliens when any reaches bottom
       if (|bottom_matrix) begin
         frozen <= 1;

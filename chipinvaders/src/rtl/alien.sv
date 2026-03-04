@@ -81,7 +81,11 @@ end
         if (movement_direction_x) begin
             next_position_x = position_x + movement_width;
         end else begin
-            next_position_x = position_x - movement_width;
+            if (position_x >= movement_width) begin
+                next_position_x = position_x - movement_width;
+            end else begin
+                next_position_x = 0;
+            end
         end
     end
 
@@ -92,8 +96,9 @@ end
 
     movement = alive && !frozen &&
                (movement_counter >= movement_frequency) &&
-               (next_position_x+(sprite_width*SCALING) >= MAX_POSITION_X || next_position_x == 0);
-    
+               (next_position_x+(sprite_width*SCALING) >= MAX_POSITION_X || 
+                next_position_x < movement_width);
+
     reached_bottom = alive && (position_y + (sprite_height * SCALING) >= MAX_POSITION_Y);
   end
 
