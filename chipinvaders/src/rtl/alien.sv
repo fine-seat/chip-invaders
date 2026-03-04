@@ -3,7 +3,8 @@ module alien #(
     parameter logic [15:0] INITIAL_POSITION_X = 0,
     parameter logic [15:0] INITIAL_POSITION_Y = 0,
     parameter logic [15:0] MAX_POSITION_X = 640,
-    parameter logic [15:0] SCALING = 4
+    parameter logic [15:0] SCALING = 4,
+    parameter logic [3:0] ALIEN_CLASS = 0
 ) (
     input logic clk,
     input logic rst_n,
@@ -41,7 +42,11 @@ localparam logic [15:0] sprite_width = 16;
 localparam logic [15:0] sprite_height = 16;
 logic [sprite_width-1:0] sprite_rom [0:sprite_height-1];
 initial begin
-    $readmemb("src/rtl/basic_alien.hex", sprite_rom);
+    if (ALIEN_CLASS == 1) begin
+        $readmemb("src/rtl/simple_alien.hex", sprite_rom);
+    end else begin
+        $readmemb("src/rtl/basic_alien.hex", sprite_rom);
+    end
 end
 
 // calculate relative position within sprite

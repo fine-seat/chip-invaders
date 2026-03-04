@@ -63,7 +63,8 @@ module alien_formation #(
             .INITIAL_POSITION_X(InitialPositionX),
             .INITIAL_POSITION_Y(InitialPositionY),
             .MAX_POSITION_X(MAX_POSITION_X),
-            .SCALING(SCALING)
+            .SCALING(SCALING),
+            .ALIEN_CLASS((row < 2) ? 4'b0001 : 4'b0)
         ) alien_inst (
             .clk(clk),
             .rst_n(rst_n),
