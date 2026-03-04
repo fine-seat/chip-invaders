@@ -31,9 +31,11 @@ module alien_formation #(
   logic movement_direction_x = 1;
   logic movement_direction_y = 0;
   logic [15:0] movement_width = 1;
+  logic frozen = 0;
   logic [NUMBER_ROWS-1:0][NUMBER_COLUMNS-1:0] armed_matrix;
   logic [NUMBER_ROWS-1:0][NUMBER_COLUMNS-1:0] graphics_matrix;
   logic [NUMBER_ROWS-1:0][NUMBER_COLUMNS-1:0] movement_matrix;
+  logic [NUMBER_ROWS-1:0][NUMBER_COLUMNS-1:0] bottom_matrix;
 
   // update armed-matrix based on alive-matrix
   always_comb begin
@@ -64,6 +66,7 @@ module alien_formation #(
             .INITIAL_POSITION_X(InitialPositionX),
             .INITIAL_POSITION_Y(InitialPositionY),
             .MAX_POSITION_X(MAX_POSITION_X),
+            .MAX_POSITION_Y(MAX_POSITION_Y),
             .SCALING(SCALING),
             .ALIEN_CLASS((row < 2) ? 4'b0001 : 4'b0)
         ) alien_inst (
@@ -75,10 +78,12 @@ module alien_formation #(
             .movement_direction_x(movement_direction_x),
             .movement_direction_y(movement_direction_y),
             .armed(armed_matrix[row][column]),
+            .frozen(frozen),
             .scan_x(scan_x),
             .scan_y(scan_y),
             .graphics(graphics_matrix[row][column]),
             .movement(movement_matrix[row][column]),
+            .reached_bottom(bottom_matrix[row][column]),
             .current_position_x(alien_position_x_matrix[row][column]),
             .current_position_y(alien_position_y_matrix[row][column])
         );
@@ -97,12 +102,18 @@ module alien_formation #(
     if (!rst_n) begin
       movement_direction_x <= 1;
       movement_direction_y <= 0;
+      frozen <= 0;
     end else begin
       if (|movement_matrix) begin
         movement_direction_x <= ~movement_direction_x;
         movement_direction_y <= 1;
       end else begin
         movement_direction_y <= 0;
+      end
+      
+      // freeze all aliens when any reaches bottom
+      if (|bottom_matrix) begin
+        frozen <= 1;
       end
     end
   end
