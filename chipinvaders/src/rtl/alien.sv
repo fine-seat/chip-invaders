@@ -3,6 +3,7 @@ module alien #(
     parameter logic [15:0] INITIAL_POSITION_X = 0,
     parameter logic [15:0] INITIAL_POSITION_Y = 0,
     parameter logic [15:0] MAX_POSITION_X = 640,
+    parameter logic [15:0] MAX_POSITION_Y = 480,
     parameter logic [15:0] SCALING = 4,
     parameter logic [3:0] ALIEN_CLASS = 0
 ) (
@@ -15,12 +16,14 @@ module alien #(
     input logic movement_direction_y, // 0 = stay, 1 = down
     input logic [15:0] movement_width,
     input logic armed, // 0 = unable to fire, 1 = capable of firing
+    input logic frozen, // 0 = moving, 1 = frozen
 
     input logic [15:0] scan_x,
     input logic [15:0] scan_y,
 
     output logic graphics,
     output logic movement,
+    output logic reached_bottom,
     output logic [15:0] current_position_x,
     output logic [15:0] current_position_y
 );
@@ -73,8 +76,8 @@ end
     next_position_x = position_x;
     next_position_y = position_y;
 
-    // move when counter reaches frequency threshold
-    if (movement_counter >= movement_frequency && alive) begin
+    // move when counter reaches frequency threshold and not frozen
+    if (movement_counter >= movement_frequency && alive && !frozen) begin
         if (movement_direction_x) begin
             next_position_x = position_x + movement_width;
         end else begin
@@ -82,14 +85,16 @@ end
         end
     end
 
-    // move down when direction_y is set
-    if (movement_direction_y && alive) begin
+    // move down when direction_y is set and not frozen
+    if (movement_direction_y && alive && !frozen) begin
         next_position_y = position_y + (sprite_height * SCALING);
     end
 
-    movement = alive &&
+    movement = alive && !frozen &&
                (movement_counter >= movement_frequency) &&
                (next_position_x+(sprite_width*SCALING) >= MAX_POSITION_X || next_position_x == 0);
+    
+    reached_bottom = alive && (position_y + (sprite_height * SCALING) >= MAX_POSITION_Y);
   end
 
   // sequential logic for state updates
