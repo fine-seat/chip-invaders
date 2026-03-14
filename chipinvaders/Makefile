@@ -3,7 +3,7 @@ TOP=chipinvaders
 TAG=chipinvaders-run
 
 PDK_ROOT ?= $(WORK_DIR)/pdk
-PDK = ihp-sg13g2
+PDK = ihp-sg13cmos5l
 
 ADDITIONAL_SOURCES = $(wildcard src/rtl/*.sv)
 
@@ -16,3 +16,7 @@ librelane:
 .PHONY: view-results
 view-results:
 	PDK_ROOT=$(PDK_ROOT) PDK=$(PDK) librelane --manual-pdk --last-run --flow OpenInOpenROAD config.yaml
+
+.PHONY: klayout
+klayout:
+	PDK_ROOT=$(PDK_ROOT) PDK=$(PDK) librelane --manual-pdk --last-run --flow OpenInKLayout config.yaml
