@@ -1,8 +1,8 @@
 `default_nettype none
 
 module cannon #(
-  logic [9:0] SHIP_Y = 10'd440,
-  logic [9:0] SHIP_X = 10'd312
+  parameter logic [9:0] SHIP_Y = 10'd440,
+  parameter logic [9:0] SHIP_X = 10'd312
 ) (
     input  logic       rst_n,
     input  logic       v_sync,
