@@ -30,7 +30,7 @@ module hud (
 
   // static "SCORE"
 
-  localparam logic [15:0] ScoreCharScaling = 8;
+  localparam logic [15:0] ScoreCharScaling = 3 * scale;
   localparam logic [15:0] ScoreCharW = 5;
   localparam logic [15:0] ScoreCharGap = 1;
   localparam logic [15:0] ScoreStep = (ScoreCharW + ScoreCharGap) * ScoreCharScaling;
@@ -92,6 +92,10 @@ module hud (
       .graphics(letter_on_matrix[4])
   );
 
+  always_comb begin
+    letter_on = |letter_on_matrix;
+  end
+
   // ---------
 
   // lives
@@ -100,11 +104,16 @@ module hud (
   logic [TotalLives-1:0] lives_matrix_raw;
   logic [TotalLives-1:0] lives_matrix;
 
+  localparam logic[15:0] LiveW = 16;
+  localparam logic[15:0] LiveGap = 4;
+  localparam logic [15:0] LiveStep = (LiveW + LiveW) * scale;
+
   genvar life;
   generate
     for (life = 0; life < TotalLives; life++) begin : gen_lives
       cannon #(
-        .SHIP_Y(HUD_Y_POS)
+        .SHIP_Y(HUD_Y_POS),
+        .SHIP_X(LIVES_X_START + life * LiveStep)
       ) life_cannon (
           .rst_n(0),
           .v_sync(0),
@@ -113,7 +122,7 @@ module hud (
           .move_left(0),
           .move_right(0),
           .cannon_graphics(lives_matrix_raw[life]),
-          .scale(1)
+          .scale(scale)
       );
     end
   endgenerate
@@ -121,6 +130,8 @@ module hud (
   always_comb begin
     for (int i = 0; i < TotalLives; i++)
       lives_matrix[i] = lives_matrix_raw[i] & (lives > i);
+
+    value_on = |lives_matrix;
   end
 
   // ---------
@@ -254,75 +265,75 @@ module hud (
     digit_row_bits = 5'b00000;
 
     // --- SCORE SECTION (Characters) ---
-    if (pix_y >= HUD_Y_POS && pix_y < HUD_Y_POS + scaled_char_h) begin
-      letter_on = |letter_on_matrix;
-      if (letter_on) label_on = 1'b1;  // "SCORE:" label
+    // if (pix_y >= HUD_Y_POS && pix_y < HUD_Y_POS + scaled_char_h) begin
+    //   letter_on = |letter_on_matrix;
+    //   if (letter_on) label_on = 1'b1;  // "SCORE:" label
 
-      // Render score value digits (green, no leading zeros)
-      // Digit slots spaced 1.5×char_w apart:
-      //   slot 0 → digit_x_base
-      //   slot 1 → +1.5cw
-      //   slot 2 → +3cw
-      //   slot 3 → +4.5cw
-      disp_digit = 4'hF;
-      slot_x     = 10'b0;
+    //   // Render score value digits (green, no leading zeros)
+    //   // Digit slots spaced 1.5×char_w apart:
+    //   //   slot 0 → digit_x_base
+    //   //   slot 1 → +1.5cw
+    //   //   slot 2 → +3cw
+    //   //   slot 3 → +4.5cw
+    //   disp_digit = 4'hF;
+    //   slot_x     = 10'b0;
 
-      if (score >= 1000) begin
-        // Four digits: thousands | hundreds | tens | ones
-        if (pix_x >= digit_x_base && pix_x < digit_x_base + scaled_char_w) begin
-          disp_digit = score_d3;
-          slot_x     = pix_x - digit_x_base;
-        end else if (pix_x >= digit_x_base + ((scaled_char_w * 3) >> 1) &&
-                             pix_x <  digit_x_base + ((scaled_char_w * 5) >> 1)) begin
-          disp_digit = score_d2;
-          slot_x     = pix_x - (digit_x_base + ((scaled_char_w * 3) >> 1));
-        end else if (pix_x >= digit_x_base + (scaled_char_w * 3) &&
-                             pix_x <  digit_x_base + (scaled_char_w * 4)) begin
-          disp_digit = score_d1;
-          slot_x     = pix_x - (digit_x_base + (scaled_char_w * 3));
-        end else if (pix_x >= digit_x_base + ((scaled_char_w * 9) >> 1) &&
-                             pix_x <  digit_x_base + ((scaled_char_w * 11) >> 1)) begin
-          disp_digit = score_d0;
-          slot_x     = pix_x - (digit_x_base + ((scaled_char_w * 9) >> 1));
-        end
-      end else if (score >= 100) begin
-        // Three digits: hundreds | tens | ones
-        if (pix_x >= digit_x_base && pix_x < digit_x_base + scaled_char_w) begin
-          disp_digit = score_d2;
-          slot_x     = pix_x - digit_x_base;
-        end else if (pix_x >= digit_x_base + ((scaled_char_w * 3) >> 1) &&
-                             pix_x <  digit_x_base + ((scaled_char_w * 5) >> 1)) begin
-          disp_digit = score_d1;
-          slot_x     = pix_x - (digit_x_base + ((scaled_char_w * 3) >> 1));
-        end else if (pix_x >= digit_x_base + (scaled_char_w * 3) &&
-                             pix_x <  digit_x_base + (scaled_char_w * 4)) begin
-          disp_digit = score_d0;
-          slot_x     = pix_x - (digit_x_base + (scaled_char_w * 3));
-        end
-      end else if (score >= 10) begin
-        // Two digits: tens | ones
-        if (pix_x >= digit_x_base && pix_x < digit_x_base + scaled_char_w) begin
-          disp_digit = score_d1;
-          slot_x     = pix_x - digit_x_base;
-        end else if (pix_x >= digit_x_base + ((scaled_char_w * 3) >> 1) &&
-                             pix_x <  digit_x_base + ((scaled_char_w * 5) >> 1)) begin
-          disp_digit = score_d0;
-          slot_x     = pix_x - (digit_x_base + ((scaled_char_w * 3) >> 1));
-        end
-      end else begin
-        // One digit: ones
-        if (pix_x >= digit_x_base && pix_x < digit_x_base + scaled_char_w) begin
-          disp_digit = score_d0;
-          slot_x     = pix_x - digit_x_base;
-        end
-      end
+    //   if (score >= 1000) begin
+    //     // Four digits: thousands | hundreds | tens | ones
+    //     if (pix_x >= digit_x_base && pix_x < digit_x_base + scaled_char_w) begin
+    //       disp_digit = score_d3;
+    //       slot_x     = pix_x - digit_x_base;
+    //     end else if (pix_x >= digit_x_base + ((scaled_char_w * 3) >> 1) &&
+    //                          pix_x <  digit_x_base + ((scaled_char_w * 5) >> 1)) begin
+    //       disp_digit = score_d2;
+    //       slot_x     = pix_x - (digit_x_base + ((scaled_char_w * 3) >> 1));
+    //     end else if (pix_x >= digit_x_base + (scaled_char_w * 3) &&
+    //                          pix_x <  digit_x_base + (scaled_char_w * 4)) begin
+    //       disp_digit = score_d1;
+    //       slot_x     = pix_x - (digit_x_base + (scaled_char_w * 3));
+    //     end else if (pix_x >= digit_x_base + ((scaled_char_w * 9) >> 1) &&
+    //                          pix_x <  digit_x_base + ((scaled_char_w * 11) >> 1)) begin
+    //       disp_digit = score_d0;
+    //       slot_x     = pix_x - (digit_x_base + ((scaled_char_w * 9) >> 1));
+    //     end
+    //   end else if (score >= 100) begin
+    //     // Three digits: hundreds | tens | ones
+    //     if (pix_x >= digit_x_base && pix_x < digit_x_base + scaled_char_w) begin
+    //       disp_digit = score_d2;
+    //       slot_x     = pix_x - digit_x_base;
+    //     end else if (pix_x >= digit_x_base + ((scaled_char_w * 3) >> 1) &&
+    //                          pix_x <  digit_x_base + ((scaled_char_w * 5) >> 1)) begin
+    //       disp_digit = score_d1;
+    //       slot_x     = pix_x - (digit_x_base + ((scaled_char_w * 3) >> 1));
+    //     end else if (pix_x >= digit_x_base + (scaled_char_w * 3) &&
+    //                          pix_x <  digit_x_base + (scaled_char_w * 4)) begin
+    //       disp_digit = score_d0;
+    //       slot_x     = pix_x - (digit_x_base + (scaled_char_w * 3));
+    //     end
+    //   end else if (score >= 10) begin
+    //     // Two digits: tens | ones
+    //     if (pix_x >= digit_x_base && pix_x < digit_x_base + scaled_char_w) begin
+    //       disp_digit = score_d1;
+    //       slot_x     = pix_x - digit_x_base;
+    //     end else if (pix_x >= digit_x_base + ((scaled_char_w * 3) >> 1) &&
+    //                          pix_x <  digit_x_base + ((scaled_char_w * 5) >> 1)) begin
+    //       disp_digit = score_d0;
+    //       slot_x     = pix_x - (digit_x_base + ((scaled_char_w * 3) >> 1));
+    //     end
+    //   end else begin
+    //     // One digit: ones
+    //     if (pix_x >= digit_x_base && pix_x < digit_x_base + scaled_char_w) begin
+    //       disp_digit = score_d0;
+    //       slot_x     = pix_x - digit_x_base;
+    //     end
+    //   end
 
-      if (disp_digit != 4'hF) begin
-        rel_x = slot_x / 10'(scale);
-        digit_row_bits = digit_row(disp_digit, rel_y[2:0]);
-        if (digit_row_bits[4-rel_x[2:0]]) value_on = 1'b1;  // score digit
-      end
-    end
+    //   if (disp_digit != 4'hF) begin
+    //     rel_x = slot_x / 10'(scale);
+    //     digit_row_bits = digit_row(disp_digit, rel_y[2:0]);
+    //     if (digit_row_bits[4-rel_x[2:0]]) value_on = 1'b1;  // score digit
+    //   end
+    // end
 
     // --- LIVES SECTION (Mini Ships) ---
     // if (pix_y >= HUD_Y_POS && pix_y < HUD_Y_POS + scaled_ship_h) begin
