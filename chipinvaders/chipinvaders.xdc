@@ -7,8 +7,8 @@ set_property PACKAGE_PIN C12 [get_ports rst_n]
 set_property IOSTANDARD LVCMOS33 [get_ports rst_n]
 
 ## Buttons
-set_property PACKAGE_PIN N17 [get_ports btn_d]
-set_property IOSTANDARD LVCMOS33 [get_ports btn_d]
+#set_property PACKAGE_PIN N17 [get_ports btn_d]
+#set_property IOSTANDARD LVCMOS33 [get_ports btn_d]
 set_property PACKAGE_PIN P17 [get_ports btn_l]
 set_property IOSTANDARD LVCMOS33 [get_ports btn_l]
 set_property PACKAGE_PIN M17 [get_ports btn_r]
