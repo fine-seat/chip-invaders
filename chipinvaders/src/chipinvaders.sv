@@ -80,7 +80,10 @@ module chipinvaders (
 
   alien_formation #(
       .NUMBER_ROWS(number_rows),
-      .NUMBER_COLUMNS(number_columns)
+      .NUMBER_COLUMNS(number_columns),
+      .SPRITE_WIDTH(16),
+      .SPRITE_HEIGHT(16),
+      .SCALING_FACTOR(2)
   ) aliens (
       .clk(vsync),
       .rst_n(rst_n),

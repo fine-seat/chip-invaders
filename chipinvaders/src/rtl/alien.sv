@@ -1,10 +1,12 @@
 
 module alien #(
+    parameter logic [15:0] SPRITE_WIDTH = 16,
+    parameter logic [15:0] SPRITE_HEIGHT = 16,
     parameter logic [15:0] INITIAL_POSITION_X = 0,
     parameter logic [15:0] INITIAL_POSITION_Y = 0,
     parameter logic [15:0] MAX_POSITION_X = 640,
     parameter logic [15:0] MAX_POSITION_Y = 480,
-    parameter logic [15:0] SCALING_FACTOR = 4,
+    parameter logic [15:0] SCALING_FACTOR = 2,
     parameter logic [3:0] ALIEN_CLASS = 0
 ) (
     input logic clk,
@@ -23,7 +25,7 @@ module alien #(
     input logic [15:0] scan_y,
 
     output logic graphics,
-    output logic movement,
+    output logic invert_movement,
     output logic reached_bottom,
     output logic [15:0] current_position_x,
     output logic [15:0] current_position_y,
@@ -37,7 +39,7 @@ module alien #(
   logic [15:0] next_position_y;
   logic [4:0] hitpoints = (ALIEN_CLASS == 1) ? 2 : 1;
 
-  // movement counter for frequency control
+  // invert_movement counter for frequency control
   logic [15:0] movement_counter;
 
   // output current positions
@@ -46,9 +48,7 @@ module alien #(
   assign hitpoints_out = hitpoints;
 
   // sprite ROM
-localparam logic [15:0] sprite_width = 16;
-localparam logic [15:0] sprite_height = 16;
-logic [sprite_width-1:0] sprite_rom [0:sprite_height-1];
+logic [SPRITE_WIDTH-1:0] sprite_rom [0:SPRITE_HEIGHT-1];
 initial begin
     if (ALIEN_CLASS == 1) begin
         $readmemb("src/rtl/simple_alien.hex", sprite_rom);
@@ -66,15 +66,15 @@ always_comb begin
     rel_y = (scan_y - position_y) / SCALING_FACTOR;
 
     // check if current scan position is within sprite bounds
-    in_sprite_bounds = (rel_x >= 0) && (rel_x < sprite_width) &&
-                       (rel_y >= 0) && (rel_y < sprite_height) &&
+    in_sprite_bounds = (rel_x >= 0) && (rel_x < SPRITE_WIDTH) &&
+                       (rel_y >= 0) && (rel_y < SPRITE_HEIGHT) &&
                        alive;
 
     // output graphics signal based on sprite ROM
     graphics = in_sprite_bounds ? ~sprite_rom[rel_y[3:0]][rel_x[3:0]] : 1'b0;
 end
 
-  // combinational logic for movement calculation
+  // combinational logic for invert_movement calculation
   always_comb begin
     // default assignments to prevent latches
     next_position_x = position_x;
@@ -95,15 +95,15 @@ end
 
     // move down when direction_y is set and not frozen
     if (movement_direction_y && alive && !frozen) begin
-        next_position_y = position_y + (sprite_height * SCALING_FACTOR);
+        next_position_y = position_y + (SPRITE_HEIGHT * SCALING_FACTOR);
     end
 
-    movement = alive && !frozen &&
+    invert_movement = alive && !frozen &&
                (movement_counter >= movement_frequency) &&
-               (next_position_x+(sprite_width*SCALING_FACTOR) >= MAX_POSITION_X || 
+               (next_position_x+(SPRITE_WIDTH*SCALING_FACTOR) >= MAX_POSITION_X || 
                 next_position_x < movement_width);
 
-    reached_bottom = alive && (position_y + (sprite_height * SCALING_FACTOR) >= MAX_POSITION_Y);
+    reached_bottom = alive && (position_y + (SPRITE_HEIGHT * SCALING_FACTOR) >= MAX_POSITION_Y);
   end
 
   // sequential logic for state updates
@@ -116,10 +116,10 @@ end
     end else begin
       position_x <= next_position_x;
       position_y <= next_position_y;
-      // update movement counter
       if (hit_registered && alive && hitpoints > 0) begin
         hitpoints <= hitpoints - 1;
       end
+      // update movement counter
       if (movement_counter >= movement_frequency) begin
         movement_counter <= 0;
       end else begin
