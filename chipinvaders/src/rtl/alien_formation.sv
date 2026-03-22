@@ -2,9 +2,9 @@
 module alien_formation #(
     parameter logic [15:0] NUMBER_ROWS = 2,
     parameter logic [15:0] NUMBER_COLUMNS = 4,
-    parameter logic [15:0] SCALING = 2,
-    parameter logic [15:0] ALIEN_SPACING_X = 20 * SCALING,
-    parameter logic [15:0] ALIEN_SPACING_Y = 20 * SCALING,
+    parameter logic [15:0] SCALING_FACTOR = 2,
+    parameter logic [15:0] ALIEN_SPACING_X = 20 * SCALING_FACTOR,
+    parameter logic [15:0] ALIEN_SPACING_Y = 20 * SCALING_FACTOR,
     parameter logic [15:0] INITIAL_POSITION_X = 50,
     parameter logic [15:0] INITIAL_POSITION_Y = 50,
     parameter logic [15:0] MAX_POSITION_X = 640,
@@ -33,6 +33,7 @@ module alien_formation #(
   logic movement_direction_y = 0;
   logic [15:0] movement_width;
   logic frozen = 0;
+  logic [NUMBER_ROWS-1:0][NUMBER_COLUMNS-1:0][4:0] hitpoint_matrix;
   logic [NUMBER_ROWS-1:0][NUMBER_COLUMNS-1:0] armed_matrix;
   logic [NUMBER_ROWS-1:0][NUMBER_COLUMNS-1:0] graphics_matrix;
   logic [NUMBER_ROWS-1:0][NUMBER_COLUMNS-1:0] movement_matrix;
@@ -79,12 +80,13 @@ module alien_formation #(
             .INITIAL_POSITION_Y(InitialPositionY),
             .MAX_POSITION_X(MAX_POSITION_X),
             .MAX_POSITION_Y(MAX_POSITION_Y),
-            .SCALING(SCALING),
+            .SCALING_FACTOR(SCALING_FACTOR),
             .ALIEN_CLASS((row < 2) ? 4'b0001 : 4'b0)
         ) alien_inst (
             .clk(clk),
             .rst_n(rst_n),
             .alive(alive_matrix[row][column]),
+            .hit_registered(hit_matrix[row][column]),
             .movement_frequency(movement_frequency),
             .movement_width(movement_width),
             .movement_direction_x(movement_direction_x),
@@ -97,7 +99,8 @@ module alien_formation #(
             .movement(movement_matrix[row][column]),
             .reached_bottom(bottom_matrix[row][column]),
             .current_position_x(alien_position_x_matrix[row][column]),
-            .current_position_y(alien_position_y_matrix[row][column])
+            .current_position_y(alien_position_y_matrix[row][column]),
+            .hitpoints_out(hitpoint_matrix[row][column])
         );
 
       end
@@ -144,7 +147,7 @@ module alien_formation #(
       // remove hit aliens
       for (int r = 0; r < NUMBER_ROWS; r++) begin
         for (int c = 0; c < NUMBER_COLUMNS; c++) begin
-          if (hit_matrix[r][c]) begin
+          if (hitpoint_matrix[r][c] <= 0) begin
             alive_matrix[r][c] <= 1'b0;
           end
         end
