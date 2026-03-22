@@ -7,7 +7,8 @@
 	"postAttachCommand": "git config --global --unset http.sslcainfo || true", // so you can commit and push inside the devcontainer
 
     "runArgs": [
-        "--privileged" // This is NOT safe, but we need it to flash the FPGA.
+        "--privileged", // This is NOT safe, but we need it to flash the FPGA.
+        "-v", "/dev/bus/usb:/dev/bus/usb"
 	],
 	
 	"customizations": {
