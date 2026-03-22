@@ -7,7 +7,8 @@ PDK = ihp-sg13cmos5l
 
 ADDITIONAL_SOURCES = $(wildcard src/rtl/*.sv)
 
-include nexys.mk # Change this for the FPGA board you are using
+TARGET ?= nexys
+include $(TARGET).mk # Change this for the FPGA board you are using (e.g., TARGET=basys)
 
 .PHONY: librelane
 librelane:
