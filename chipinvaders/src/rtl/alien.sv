@@ -4,13 +4,14 @@ module alien #(
     parameter logic [15:0] INITIAL_POSITION_Y = 0,
     parameter logic [15:0] MAX_POSITION_X = 640,
     parameter logic [15:0] MAX_POSITION_Y = 480,
-    parameter logic [15:0] SCALING = 4,
+    parameter logic [15:0] SCALING_FACTOR = 4,
     parameter logic [3:0] ALIEN_CLASS = 0
 ) (
     input logic clk,
     input logic rst_n,
 
     input logic alive,
+    input logic hit_registered,
     input logic [15:0] movement_frequency,
     input logic movement_direction_x, // 0 = left, 1 = right
     input logic movement_direction_y, // 0 = stay, 1 = down
@@ -25,7 +26,8 @@ module alien #(
     output logic movement,
     output logic reached_bottom,
     output logic [15:0] current_position_x,
-    output logic [15:0] current_position_y
+    output logic [15:0] current_position_y,
+    output logic [4:0] hitpoints_out
 );
 
   // internal signals for next state
@@ -33,6 +35,7 @@ module alien #(
   logic [15:0] position_y = INITIAL_POSITION_Y;
   logic [15:0] next_position_x;
   logic [15:0] next_position_y;
+  logic [4:0] hitpoints = (ALIEN_CLASS == 1) ? 2 : 1;
 
   // movement counter for frequency control
   logic [15:0] movement_counter;
@@ -40,6 +43,7 @@ module alien #(
   // output current positions
   assign current_position_x = position_x;
   assign current_position_y = position_y;
+  assign hitpoints_out = hitpoints;
 
   // sprite ROM
 localparam logic [15:0] sprite_width = 16;
@@ -58,8 +62,8 @@ logic signed [15:0] rel_x, rel_y;
 logic in_sprite_bounds;
 
 always_comb begin
-    rel_x = (scan_x - position_x) / SCALING;
-    rel_y = (scan_y - position_y) / SCALING;
+    rel_x = (scan_x - position_x) / SCALING_FACTOR;
+    rel_y = (scan_y - position_y) / SCALING_FACTOR;
 
     // check if current scan position is within sprite bounds
     in_sprite_bounds = (rel_x >= 0) && (rel_x < sprite_width) &&
@@ -91,15 +95,15 @@ end
 
     // move down when direction_y is set and not frozen
     if (movement_direction_y && alive && !frozen) begin
-        next_position_y = position_y + (sprite_height * SCALING);
+        next_position_y = position_y + (sprite_height * SCALING_FACTOR);
     end
 
     movement = alive && !frozen &&
                (movement_counter >= movement_frequency) &&
-               (next_position_x+(sprite_width*SCALING) >= MAX_POSITION_X || 
+               (next_position_x+(sprite_width*SCALING_FACTOR) >= MAX_POSITION_X || 
                 next_position_x < movement_width);
 
-    reached_bottom = alive && (position_y + (sprite_height * SCALING) >= MAX_POSITION_Y);
+    reached_bottom = alive && (position_y + (sprite_height * SCALING_FACTOR) >= MAX_POSITION_Y);
   end
 
   // sequential logic for state updates
@@ -108,10 +112,14 @@ end
       position_x <= INITIAL_POSITION_X;
       position_y <= INITIAL_POSITION_Y;
       movement_counter <= 0;
+      hitpoints <= (ALIEN_CLASS == 1) ? 2 : 1;
     end else begin
       position_x <= next_position_x;
       position_y <= next_position_y;
       // update movement counter
+      if (hit_registered && alive && hitpoints > 0) begin
+        hitpoints <= hitpoints - 1;
+      end
       if (movement_counter >= movement_frequency) begin
         movement_counter <= 0;
       end else begin
