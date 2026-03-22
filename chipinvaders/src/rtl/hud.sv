@@ -95,7 +95,7 @@ module hud #(
   );
 
   always_comb begin
-    letter_on = |letter_on_matrix;
+    label_on = |letter_on_matrix;
   end
 
   // ---------
@@ -108,7 +108,7 @@ module hud #(
 
   localparam logic [15:0] LiveW = 16;
   localparam logic [15:0] LiveGap = 4;
-  localparam logic [15:0] LiveStep = (LiveW + LiveW) * SCALE;
+  localparam logic [15:0] LiveStep = (LiveW + LiveGap) * SCALE;
 
   genvar life;
   generate

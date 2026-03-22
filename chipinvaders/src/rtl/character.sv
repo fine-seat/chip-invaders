@@ -3,7 +3,6 @@ module character #(
     parameter logic [15:0] X_POS   = 0,
     parameter logic [15:0] Y_POS   = 0
 ) (
-    input logic v_sync,
     input logic [15:0] char,  // ascii when letter
     input logic [15:0] hpos,
     input logic [15:0] vpos,

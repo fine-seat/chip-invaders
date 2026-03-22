@@ -69,10 +69,6 @@ module chipinvaders (
   logic [1:0] lives = 3;
   logic [13:0] score;
 
-  // logic[15:0] c = "4";
-  logic[15:0] c = "A";
-  logic char_gfx;
-
   // Alien formation
   logic [4:0][7:0] alive_matrix;
   logic [4:0][7:0] alien_gfx_matrix;
@@ -105,15 +101,6 @@ module chipinvaders (
       end
     end
   end
-
-  // test char
-  character char (
-    .v_sync(vsync),
-    .hpos(hpos),
-    .vpos(vpos),
-    .char(c),
-    .graphics(char_gfx)
-  );
 
   // Cannon modules
   cannon cannon (
@@ -225,10 +212,6 @@ module chipinvaders (
           vga_r = CannonColor[11:8];
           vga_g = CannonColor[7:4];
           vga_b = CannonColor[3:0];
-        end else if (char_gfx) begin
-          vga_r = 4'b1111;
-          vga_g = 4'b1111;
-          vga_b = 4'b1111;
         end
       end
     end

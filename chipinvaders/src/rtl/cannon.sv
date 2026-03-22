@@ -29,7 +29,7 @@ module cannon #(
   assign scaled_width  = BASE_WIDTH * scale;
   assign scaled_height = BASE_HEIGHT * scale;
 
-  logic [9:0] x_reg;
+  logic [9:0] x_reg = SHIP_X;
 
   // --- MOVEMENT LOGIC ---
   // Update position on every Vertical Sync (once per frame)
