@@ -2,6 +2,8 @@
 module alien_formation #(
     parameter logic [15:0] NUMBER_ROWS = 2,
     parameter logic [15:0] NUMBER_COLUMNS = 4,
+    parameter logic [15:0] SPRITE_WIDTH = 16,
+    parameter logic [15:0] SPRITE_HEIGHT = 16,
     parameter logic [15:0] SCALING_FACTOR = 2,
     parameter logic [15:0] ALIEN_SPACING_X = 20 * SCALING_FACTOR,
     parameter logic [15:0] ALIEN_SPACING_Y = 20 * SCALING_FACTOR,
@@ -81,7 +83,9 @@ module alien_formation #(
             .MAX_POSITION_X(MAX_POSITION_X),
             .MAX_POSITION_Y(MAX_POSITION_Y),
             .SCALING_FACTOR(SCALING_FACTOR),
-            .ALIEN_CLASS((row < 2) ? 4'b0001 : 4'b0)
+            .ALIEN_CLASS((row < 2) ? 4'b0001 : 4'b0),
+            .SPRITE_WIDTH(SPRITE_WIDTH),
+            .SPRITE_HEIGHT(SPRITE_HEIGHT)
         ) alien_inst (
             .clk(clk),
             .rst_n(rst_n),
@@ -96,7 +100,7 @@ module alien_formation #(
             .scan_x(scan_x),
             .scan_y(scan_y),
             .graphics(graphics_matrix[row][column]),
-            .movement(movement_matrix[row][column]),
+            .invert_movement(movement_matrix[row][column]),
             .reached_bottom(bottom_matrix[row][column]),
             .current_position_x(alien_position_x_matrix[row][column]),
             .current_position_y(alien_position_y_matrix[row][column]),
