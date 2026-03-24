@@ -4,6 +4,12 @@ DYC26
 ## Getting started
 Open the repo in the Devcontainer.
 
+### New pdk
+To use the new pdk, change into the `pdk` submodule folder and run:
+```sh
+git clone https://github.com/IHP-GmbH/ihp-sg13cmos5l.git
+```
+
 ### Running the librelane flow
 1. Open a librelane nix-shell.
 ```sh
@@ -30,12 +36,14 @@ nix develop github:openxc7/toolchain-nix
 2. To build the bitstream:
 ```sh
 cd chipinvaders/
-make bits
+make bits # For Nexys A7
+make TARGET=basys bits # For Basys 3
 ```
 
 3. To load onto the FPGA:
 ```sh
-make program
+make program # For Nexys A7
+make TARGET=basys program # For Basys 3
 ```
 
 ### Loading without devcontainer
@@ -43,5 +51,6 @@ If you encounter issues loading with the Devcontainer, you can use the openFPGAL
 
 To run openFPGALoader:
 ```sh
-openFPGALoader --board nexys_a7_100 --bitstream chipinvaders.bit
+openFPGALoader --board nexys_a7_100 --bitstream chipinvaders.bit # For Nexys A7
+openFPGALoader --board basys3 --bitstream chipinvaders.bit # For Basys 3
 ```
