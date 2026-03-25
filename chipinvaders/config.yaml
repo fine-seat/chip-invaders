@@ -29,6 +29,11 @@ meta:
     #Netgen.LVS: null
     #Checker.LVS: null
 
+    KLayout.Filler: Magic.Filler
+
+MAGIC_FILLER_SCRIPT: dir::scripts/generate_fill.py
+MAGIC_FILLER_OPTIONS: ["-keep"]
+
 DESIGN_NAME: top
 
 VERILOG_FILES:
