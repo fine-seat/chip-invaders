@@ -11,6 +11,7 @@ module alien #(
 ) (
     input logic clk,
     input logic rst_n,
+    input logic enable,
 
     input logic alive,
     input logic hit_registered,
@@ -113,7 +114,7 @@ end
       position_y <= INITIAL_POSITION_Y;
       movement_counter <= 0;
       hitpoints <= (ALIEN_CLASS == 1) ? 2 : 1;
-    end else begin
+    end else if (enable) begin
       position_x <= next_position_x;
       position_y <= next_position_y;
       if (hit_registered && alive && hitpoints > 0) begin

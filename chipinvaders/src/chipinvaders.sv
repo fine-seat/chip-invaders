@@ -44,6 +44,14 @@ module chipinvaders (
   logic [9:0] hpos;
   logic [9:0] vpos;
 
+  logic vsync_d;
+  always_ff @(posedge clk_25mhz or negedge rst_n) begin
+    if (!rst_n) vsync_d <= 1'b0;
+    else vsync_d <= vsync;
+  end
+  logic vsync_pe;
+  assign vsync_pe = vsync & ~vsync_d;
+
   hvsync_generator hvsync_gen (
       .clk(clk_25mhz),
       .reset(~rst_n),
@@ -91,7 +99,8 @@ module chipinvaders (
       .SPRITE_HEIGHT(alien_sprite_height),
       .SCALING_FACTOR(alien_scaling)
   ) aliens (
-      .clk(vsync),
+      .clk(clk_25mhz),
+      .enable(vsync_pe),
       .rst_n(rst_n),
       .scan_x(hpos),
       .scan_y(vpos),
@@ -134,7 +143,8 @@ module chipinvaders (
   // Cannon modules
   cannon cannon (
       .rst_n(rst_n),
-      .v_sync(vsync),
+      .clk(clk_25mhz),
+      .enable(vsync_pe),
       .pix_x(hpos),
       .pix_y(vpos),
       .move_left(btn_l),
@@ -149,9 +159,10 @@ module chipinvaders (
       .CANNON_Y(440)
   ) laser (
       .reset_n(rst_n),
+      .clk(clk_25mhz),
+      .enable(vsync_pe),
       .vpos(vpos),
       .hpos(hpos),
-      .vsync(vsync),
       .shoot(btn_u),
       .cannon_x(cannon_x),
       .hit_alien(hit_alien),
@@ -165,9 +176,14 @@ module chipinvaders (
   logic hud_label_on;
   logic hud_value_on;
 
-  always_ff @(posedge reset_game) begin
-    lives <= 3;  // Reset to 3 lives at the start of the game
-    score <= 0;
+  always_ff @(posedge clk_25mhz or negedge rst_n) begin
+    if (!rst_n) begin
+      lives <= 3;
+      score <= 0;
+    end else if (reset_game) begin
+      lives <= 3;  // Reset to 3 lives at the start of the game
+      score <= 0;
+    end
   end
 
   hud hud (
@@ -187,7 +203,8 @@ module chipinvaders (
 
   game_display game_disp (
       .rst_n(rst_n),
-      .v_sync(vsync),
+      .clk(clk_25mhz),
+      .enable(vsync_pe),
       .pix_x(hpos),
       .pix_y(vpos),
       .state(game_state),
@@ -201,7 +218,8 @@ module chipinvaders (
 
   game_state_machine state_machine (
       .rst_n(rst_n),
-      .v_sync(vsync),
+      .clk(clk_25mhz),
+      .enable(vsync_pe),
       .trigger_in(btn_u),
       .game_over_trigger(game_over_trigger),
       .state(game_state),

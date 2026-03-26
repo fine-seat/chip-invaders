@@ -14,6 +14,7 @@ module alien_formation #(
 ) (
     input logic clk,
     input logic rst_n,
+    input logic enable,
 
     // current scan position of VGA module
     input logic [15:0] scan_x,
@@ -100,6 +101,7 @@ module alien_formation #(
         ) alien_inst (
             .clk(clk),
             .rst_n(rst_n),
+            .enable(enable),
             .alive(alive_matrix[row][column]),
             .hit_registered(hit_matrix[row][column]),
             .movement_frequency(movement_frequency),
@@ -133,7 +135,7 @@ module alien_formation #(
       movement_direction_x <= 1;
       movement_direction_y <= 0;
       frozen <= 0;
-    end else begin
+    end else if (enable) begin
       if (|movement_matrix) begin
         movement_direction_x <= ~movement_direction_x;
         movement_direction_y <= 1;
@@ -157,7 +159,7 @@ module alien_formation #(
           alive_matrix[r][c] <= 1'b1;
         end
       end
-    end else begin
+    end else if (enable) begin
       level <= 1;
       // remove hit aliens
       for (int r = 0; r < NUMBER_ROWS; r++) begin

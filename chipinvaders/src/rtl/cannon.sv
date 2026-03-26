@@ -5,7 +5,8 @@ module cannon #(
     parameter logic [9:0] SHIP_X = 10'd312
 ) (
     input  logic       rst_n,
-    input  logic       v_sync,
+    input  logic       clk,
+    input  logic       enable,
     input  logic [9:0] pix_x,
     input  logic [9:0] pix_y,
     input  logic       move_left,
@@ -31,10 +32,10 @@ module cannon #(
 
   // --- MOVEMENT LOGIC ---
   // Update position on every Vertical Sync (once per frame)
-  always_ff @(posedge v_sync or negedge rst_n) begin
+  always_ff @(posedge clk or negedge rst_n) begin
     if (~rst_n) begin
       x_reg <= SHIP_X;  // Start at center screen
-    end else begin
+    end else if (enable) begin
       if (move_left && x_reg > Speed) x_reg <= x_reg - Speed;
       else if (move_right && x_reg < (10'd640 - scaled_width)) x_reg <= x_reg + Speed;
     end

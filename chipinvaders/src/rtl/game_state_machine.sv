@@ -1,6 +1,7 @@
 module game_state_machine (
     input  logic       rst_n,
-    input  logic       v_sync,
+    input  logic       clk,
+    input  logic       enable,
     input  logic       trigger_in,         // Direct trigger button
     input  logic       game_over_trigger,  // External game over signal
     output logic [1:0] state,              // 0: MENU, 1: GAME, 2: END
@@ -18,13 +19,13 @@ module game_state_machine (
     // Internal state for edge detection
     logic prev_trigger;
 
-    always_ff @(posedge v_sync or negedge rst_n) begin
+    always_ff @(posedge clk or negedge rst_n) begin
         if (~rst_n) begin
             state <= STATE_MENU;
             blink_timer <= 6'd0;
             prev_trigger <= 1'b0;
             reset_game <= 1'b0;
-        end else begin
+        end else if (enable) begin
             blink_timer <= blink_timer + 1'b1;
             reset_game <= 1'b0; // Default: no reset
             

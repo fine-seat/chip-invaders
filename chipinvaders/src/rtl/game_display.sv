@@ -1,6 +1,7 @@
 module game_display (
     input  logic       rst_n,
-    input  logic       v_sync,
+    input  logic       clk,
+    input  logic       enable,
     input  logic [9:0] pix_x,
     input  logic [9:0] pix_y,
     input  logic [1:0] state,
@@ -20,12 +21,12 @@ module game_display (
     logic [4:0] char_limit;
     logic [2:0] color_anim;
 
-    always_ff @(posedge v_sync or negedge rst_n) begin
+    always_ff @(posedge clk or negedge rst_n) begin
         if (~rst_n) begin
             type_timer <= 4'd0;
             char_limit <= 5'd0;
             color_anim <= 3'd0;
-        end else begin
+        end else if (enable) begin
             color_anim <= color_anim + 1'b1;
             if (state == STATE_MENU) begin
                 if (char_limit < 5'd17) begin
