@@ -68,7 +68,7 @@ module cannon #(
       (rel_y >= 0) &&
       (rel_y < SpriteHeight);
 
-    // rel_y[3:0] statt [2:0] - brauchen 4 Bit für Index 0-15
+    // rel_y[3:0] instead of [2:0] - need 4 bits for indices 0–15
     if (fire) begin
       cannon_graphics = in_sprite_bounds
         ? ~sprite_rom_firing[rel_y[3:0]][SpriteWidth-1-rel_x[3:0]]

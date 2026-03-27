@@ -88,8 +88,8 @@ module chipinvaders (
   localparam [3:0] ProjectileScaling = 4;
   logic [NumberRows-1:0][NumberColumns-1:0] alive_matrix;
   logic [NumberRows-1:0][NumberColumns-1:0] hit_matrix;
-  logic [15:0][NumberRows-1:0][NumberColumns-1:0] alien_position_x_matrix;
-  logic [15:0][NumberRows-1:0][NumberColumns-1:0] alien_position_y_matrix;
+  logic [NumberRows-1:0][NumberColumns-1:0][15:0] alien_position_x_matrix;
+  logic [NumberRows-1:0][NumberColumns-1:0][15:0] alien_position_y_matrix;
   logic alien_pixel;
 
   alien_formation #(
@@ -124,8 +124,6 @@ module chipinvaders (
       .PROJECTILE_SPRITE_HEIGHT(ProjectileSpriteHeight),
       .PROJECTILE_SCALING(ProjectileScaling)
   ) collision_det (
-      .clk(clk_25mhz),
-      .rst_n(rst_n),
       .alive_matrix(alive_matrix),
       .alien_position_x_matrix(alien_position_x_matrix),
       .alien_position_y_matrix(alien_position_y_matrix),

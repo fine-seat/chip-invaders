@@ -28,7 +28,7 @@ module alien_formation #(
     output logic alien_pixel
 );
 
-  logic [3:0] level;
+  //logic [3:0] level;
   logic [15:0] movement_frequency = 1;
   logic [7:0] alive_count;
   logic movement_direction_x = 1;
@@ -151,7 +151,7 @@ module alien_formation #(
 
   always_ff @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
-      level <= 0;
+      //level <= 0;
       // initialize elements of matrix
       for (int r = 0; r < NUMBER_ROWS; r++) begin
         for (int c = 0; c < NUMBER_COLUMNS; c++) begin
@@ -159,7 +159,7 @@ module alien_formation #(
         end
       end
     end else if (enable) begin
-      level <= 1;
+      //level <= 1;
       // remove hit aliens
       for (int r = 0; r < NUMBER_ROWS; r++) begin
         for (int c = 0; c < NUMBER_COLUMNS; c++) begin

@@ -8,9 +8,6 @@ module collision_detection #(
     parameter logic [15:0] PROJECTILE_SPRITE_HEIGHT = 4,
     parameter logic [3:0] PROJECTILE_SCALING = 4
 ) (
-    input logic clk,
-    input logic rst_n,
-
     input logic [NUMBER_ROWS-1:0][NUMBER_COLUMNS-1:0] alive_matrix,
     input logic [NUMBER_ROWS-1:0][NUMBER_COLUMNS-1:0][15:0] alien_position_x_matrix,
     input logic [NUMBER_ROWS-1:0][NUMBER_COLUMNS-1:0][15:0] alien_position_y_matrix,
