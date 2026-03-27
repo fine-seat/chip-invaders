@@ -1,0 +1,15 @@
+diff --git a/flake.nix b/flake.nix
+index edb242d..97cd072 100644
+--- a/flake.nix
++++ b/flake.nix
+@@ -176,8 +176,9 @@
+                 types-psutil
+                 types-lxml
+                 pipx
++                numpy
+               ];
+-            include-librelane = false;
++            include-librelane = true;
+           });
+           docs = pkgs.librelane-shell.override ({
+             extra-packages = with pkgs; [
