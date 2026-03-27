@@ -103,7 +103,7 @@ PAD_WEST:
   - "button_shoot_pad"
 
 PDN_OBSTRUCTIONS:
-  - [TopMetal1, 450, 450, 550, 566]
+  - [TopMetal1, 370, 380, 570, 612]
 
 ROUTING_OBSTRUCTIONS:
-  - [TopMetal1, 450, 450, 550, 566]
+  - [TopMetal1, 370, 380, 570, 612]
