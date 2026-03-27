@@ -176,13 +176,26 @@ module chipinvaders (
   logic hud_label_on;
   logic hud_value_on;
 
+  logic hit_alien_d;
+
   always_ff @(posedge clk_25mhz or negedge rst_n) begin
     if (!rst_n) begin
       lives <= 3;
       score <= 0;
+      hit_alien_d <= 0;
     end else if (reset_game) begin
       lives <= 3;  // Reset to 3 lives at the start of the game
       score <= 0;
+      hit_alien_d <= 0;
+    end else if (vsync_pe) begin
+      hit_alien_d <= hit_alien;
+      if (game_state == 2'd1 && hit_alien && !hit_alien_d) begin
+        if (score <= 9989) begin
+          score <= score + 10;
+        end else begin
+          score <= 9999;
+        end
+      end
     end
   end
 
