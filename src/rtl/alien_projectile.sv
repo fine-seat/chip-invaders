@@ -1,6 +1,6 @@
 module alien_projectile #(
-    parameter LOWER_BORDER = 480,
-    parameter SCALING = 4
+    parameter logic[15:0] LOWER_BORDER = 480,
+    parameter logic[9:0] SCALING = 4
 ) (
     input logic clock,
     input logic reset_n,
@@ -23,7 +23,7 @@ module alien_projectile #(
     output logic projectile_gfx
 );
 
-  localparam ProjectileSpeed = 6;
+  localparam logic[9:0] ProjectileSpeed = 6;
 
   logic frame;
 

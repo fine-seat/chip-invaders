@@ -100,7 +100,7 @@ module alien #(
 
     invert_movement = alive && !frozen &&
                (movement_counter >= movement_frequency) &&
-               (next_position_x+(SPRITE_WIDTH*SCALING_FACTOR) >= MAX_POSITION_X || 
+               (next_position_x+(SPRITE_WIDTH*SCALING_FACTOR) >= MAX_POSITION_X ||
                 next_position_x < movement_width);
 
     reached_bottom = alive && (position_y + (SPRITE_HEIGHT * SCALING_FACTOR) >= MAX_POSITION_Y);

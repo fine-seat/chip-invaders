@@ -16,16 +16,17 @@ module cannon_display #(
     $readmemb("src/rtl/single_barrel_cannon.hex", sprite_rom);
   end
 
-  logic signed [10:0] rel_x, rel_y = 0;
+  logic signed [10:0] rel_x, rel_y;
   logic in_sprite_bounds;
 
   always_comb begin
-    rel_x = (10'(pix_x) - x_reg) / scale;
-    rel_y = (10'(pix_y) - CANNON_Y) / scale;
+    rel_x = (pix_x - x_reg) / scale;
+    rel_y = (pix_y - CANNON_Y) / scale;
 
     in_sprite_bounds = (rel_x >= 0) && (rel_x < SpriteW) && (rel_y >= 0) && (rel_y < SpriteH);
 
-    cannon_graphics = in_sprite_bounds ? ~sprite_rom[rel_y[3:0]][SpriteW-1-rel_x[3:0]] : 1'b0;
+    cannon_graphics = (in_sprite_bounds ? ~sprite_rom[rel_y[3:0]][SpriteW-1-rel_x[3:0]] : 1'b0)
+      & scale > 0; // scale = 0 -> invisible
   end
 
 endmodule

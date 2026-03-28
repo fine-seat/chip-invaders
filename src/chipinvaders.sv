@@ -84,12 +84,12 @@ module chipinvaders (
   // Alien formation
   localparam int NumberRows = 5;
   localparam int NumberColumns = 8;
-  localparam [15:0] AlienSpriteWidth = 16;
-  localparam [15:0] AlienSpriteHeight = 16;
-  localparam [3:0] AlienScaling = 2;
-  localparam [15:0] ProjectileSpriteWidth = 1;
-  localparam [15:0] ProjectileSpriteHeight = 4;
-  localparam [3:0] ProjectileScaling = 4;
+  localparam logic [15:0] AlienSpriteWidth = 16;
+  localparam logic [15:0] AlienSpriteHeight = 16;
+  localparam logic [3:0] AlienScaling = 2;
+  localparam logic [15:0] ProjectileSpriteWidth = 1;
+  localparam logic [15:0] ProjectileSpriteHeight = 4;
+  localparam logic [3:0] ProjectileScaling = 4;
   logic [NumberRows-1:0][NumberColumns-1:0] alive_matrix;
   logic [NumberRows-1:0][NumberColumns-1:0] hit_matrix;
   logic [NumberRows-1:0][NumberColumns-1:0][15:0] alien_position_x_matrix;

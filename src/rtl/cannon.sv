@@ -55,26 +55,28 @@ module cannon #(
     $readmemb("src/rtl/single_barrel_cannon_fire.hex", sprite_rom_firing);
   end
 
-  // --- RENDERING LOGIC ---
   logic signed [10:0] rel_x, rel_y;
   logic in_sprite_bounds;
 
   always_comb begin
-    rel_x = (10'(pix_x) - x_reg) / scale;
-    rel_y = (10'(pix_y) - SHIP_Y) / scale;
+    rel_x = (pix_x - x_reg) / scale;
+    rel_y = (pix_y - SHIP_Y) / scale;
 
     in_sprite_bounds = (rel_x >= 0) &&
       (rel_x < SpriteWidth) &&
       (rel_y >= 0) &&
       (rel_y < SpriteHeight);
 
-    // rel_y[3:0] instead of [2:0] - need 4 bits for indices 0–15
     if (fire) begin
-      cannon_graphics = in_sprite_bounds
+      cannon_graphics = (in_sprite_bounds
         ? ~sprite_rom_firing[rel_y[3:0]][SpriteWidth-1-rel_x[3:0]]
-        : 1'b0;
+        : 0)
+        & scale > 0; // scale = 0 -> invisible
     end else begin
-      cannon_graphics = in_sprite_bounds ? ~sprite_rom[rel_y[3:0]][SpriteWidth-1-rel_x[3:0]] : 1'b0;
+      cannon_graphics = (in_sprite_bounds
+        ? ~sprite_rom[rel_y[3:0]][SpriteWidth-1-rel_x[3:0]]
+        : 0)
+        & scale > 0; // scale = 0 -> invisible
     end
   end
 

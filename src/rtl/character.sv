@@ -3,7 +3,7 @@ module character #(
     parameter logic [15:0] X_POS   = 0,
     parameter logic [15:0] Y_POS   = 0
 ) (
-    input logic [15:0] char_code,  // ascii when letter
+    input logic [7:0] char_code,  // ascii when letter
     input logic [15:0] hpos,
     input logic [15:0] vpos,
 
@@ -25,9 +25,9 @@ module character #(
 
   logic is_digit, is_letter;
 
-  logic [15:0] letter_index;
+  logic [4:0] letter_index;
 
-  logic [15:0] rel_x, rel_y;
+  logic [2:0] rel_x, rel_y;
 
   always_comb begin
     graphics = 0;
@@ -36,14 +36,14 @@ module character #(
     is_digit = (char_code <= 9);
     is_letter = (char_code >= "A") && (char_code <= "Z");
 
-    rel_x = (hpos - X_POS) / SCALING;
-    rel_y = (vpos - Y_POS) / SCALING;
+    rel_x = 3'((hpos - X_POS) / SCALING);
+    rel_y = 3'((vpos - Y_POS) / SCALING);
 
     if (rel_y < SpriteHeight && rel_x < SpriteWidth) begin
       if (is_digit) begin
-        graphics = digits_rom[char_code][rel_y][SpriteWidth-1-rel_x];
+        graphics = digits_rom[4'(char_code)][rel_y][SpriteWidth-1-rel_x];
       end else if (is_letter) begin
-        letter_index = char_code[15:0] - "A";
+        letter_index = 5'(char_code[7:0] - "A");
         graphics = letters_rom[letter_index][rel_y][SpriteWidth-1-rel_x];
       end
     end
