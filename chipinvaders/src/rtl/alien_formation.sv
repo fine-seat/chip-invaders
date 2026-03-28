@@ -25,7 +25,8 @@ module alien_formation #(
     output logic [NUMBER_ROWS-1:0][NUMBER_COLUMNS-1:0] alive_matrix = '1,
     output logic [NUMBER_ROWS-1:0][NUMBER_COLUMNS-1:0][15:0] alien_position_x_matrix,
     output logic [NUMBER_ROWS-1:0][NUMBER_COLUMNS-1:0][15:0] alien_position_y_matrix,
-    output logic alien_pixel
+    output logic alien_pixel,
+    output logic projectile_pixel
 );
 
   logic [3:0] level;
@@ -38,6 +39,7 @@ module alien_formation #(
   logic [NUMBER_ROWS-1:0][NUMBER_COLUMNS-1:0][4:0] hitpoint_matrix;
   logic [NUMBER_ROWS-1:0][NUMBER_COLUMNS-1:0] armed_matrix;
   logic [NUMBER_ROWS-1:0][NUMBER_COLUMNS-1:0] graphics_matrix;
+  logic [NUMBER_ROWS-1:0][NUMBER_COLUMNS-1:0] projectile_graphics_matrix;
   logic [NUMBER_ROWS-1:0][NUMBER_COLUMNS-1:0] movement_matrix;
   logic [NUMBER_ROWS-1:0][NUMBER_COLUMNS-1:0] bottom_matrix;
 
@@ -110,7 +112,8 @@ module alien_formation #(
             .frozen(frozen),
             .scan_x(scan_x),
             .scan_y(scan_y),
-            .graphics(graphics_matrix[row][column]),
+            .alien_graphics(graphics_matrix[row][column]),
+            .projectile_graphics(projectile_graphics_matrix[row][column]),
             .invert_movement(movement_matrix[row][column]),
             .reached_bottom(bottom_matrix[row][column]),
             .current_position_x(alien_position_x_matrix[row][column]),
@@ -125,6 +128,11 @@ module alien_formation #(
   // combine alien graphics into single output bit
   always_comb begin
     alien_pixel = |graphics_matrix;
+  end
+
+  // combine projectile graphics into single output bit
+  always_comb begin
+    projectile_pixel = |projectile_graphics_matrix;
   end
 
   // update movement direction based on movement_matrix

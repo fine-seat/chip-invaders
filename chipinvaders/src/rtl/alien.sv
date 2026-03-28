@@ -19,14 +19,17 @@ module alien #(
     input logic movement_direction_y, // 0 = stay, 1 = down
     input logic [15:0] movement_width,
     input logic armed, // 0 = unable to fire, 1 = capable of firing
+    input logic projectile_active,
     input logic frozen, // 0 = moving, 1 = frozen
 
     input logic [15:0] scan_x,
     input logic [15:0] scan_y,
 
-    output logic graphics,
+    output logic alien_graphics,
+    output logic projectile_graphics,
     output logic invert_movement,
     output logic reached_bottom,
+    output logic fire_projectile,
     output logic [15:0] current_position_x,
     output logic [15:0] current_position_y,
     output logic [4:0] hitpoints_out
@@ -48,20 +51,47 @@ module alien #(
   assign hitpoints_out = hitpoints;
 
   // sprite ROM
-logic [SPRITE_WIDTH-1:0] sprite_rom [0:SPRITE_HEIGHT-1];
-initial begin
+  logic [SPRITE_WIDTH-1:0] sprite_rom [0:SPRITE_HEIGHT-1];
+  initial begin
     if (ALIEN_CLASS == 1) begin
-        $readmemb("src/rtl/simple_alien.hex", sprite_rom);
+      $readmemb("src/rtl/simple_alien.hex", sprite_rom);
     end else begin
-        $readmemb("src/rtl/basic_alien.hex", sprite_rom);
+      $readmemb("src/rtl/basic_alien.hex", sprite_rom);
     end
-end
+  end
 
-// calculate relative position within sprite
-logic signed [15:0] rel_x, rel_y;
-logic in_sprite_bounds;
+  generate
+    alien_projectile #(
+        .INITIAL_POSITION_X(INITIAL_POSITION_X),
+        .INITIAL_POSITION_Y(INITIAL_POSITION_Y + (SPRITE_HEIGHT * SCALING_FACTOR)),
+        .MAX_POSITION_X(MAX_POSITION_X),
+        .MAX_POSITION_Y(MAX_POSITION_Y),
+        .SCALING_FACTOR(SCALING_FACTOR)
+    ) alien_projectile_inst (
+        .clk(clk),
+        .rst_n(rst_n),
+        .alien_position_x(position_x),
+        .alien_position_y(position_y),
+        .movement_direction_x(movement_direction_x),
+        .movement_direction_y(movement_direction_y),
+        .movement_frequency(movement_frequency),
+        .movement_width(movement_width),
+        .scan_x(scan_x),
+        .scan_y(scan_y),
+        .fire_projectile(fire_projectile),
+        .graphics(),
+        .projectile_active(),
+        .projectile_position_x(),
+        .projectile_position_y(),
+        .projectile_graphics(projectile_graphics)
+    );
+  endgenerate
 
-always_comb begin
+  // calculate relative position within sprite
+  logic signed [15:0] rel_x, rel_y;
+  logic in_sprite_bounds;
+
+  always_comb begin
     rel_x = (scan_x - position_x) / SCALING_FACTOR;
     rel_y = (scan_y - position_y) / SCALING_FACTOR;
 
@@ -71,8 +101,8 @@ always_comb begin
                        alive;
 
     // output graphics signal based on sprite ROM
-    graphics = in_sprite_bounds ? ~sprite_rom[rel_y[3:0]][rel_x[3:0]] : 1'b0;
-end
+    alien_graphics = in_sprite_bounds ? ~sprite_rom[rel_y[3:0]][rel_x[3:0]] : 1'b0;
+  end
 
   // combinational logic for invert_movement calculation
   always_comb begin
@@ -104,6 +134,10 @@ end
                 next_position_x < movement_width);
 
     reached_bottom = alive && (position_y + (SPRITE_HEIGHT * SCALING_FACTOR) >= MAX_POSITION_Y);
+  end
+
+  always_comb begin
+    fire_projectile = alive && armed;
   end
 
   // sequential logic for state updates

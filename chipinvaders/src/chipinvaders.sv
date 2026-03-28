@@ -83,6 +83,7 @@ module chipinvaders (
   logic [15:0] [number_rows-1:0][number_columns-1:0] alien_position_x_matrix;
   logic [15:0] [number_rows-1:0][number_columns-1:0] alien_position_y_matrix;
   logic alien_pixel;
+  logic projectile_pixel;
 
   alien_formation #(
       .NUMBER_ROWS(number_rows),
@@ -99,7 +100,8 @@ module chipinvaders (
       .hit_matrix(hit_matrix),
       .alien_position_x_matrix(alien_position_x_matrix),
       .alien_position_y_matrix(alien_position_y_matrix),
-      .alien_pixel(alien_pixel)
+      .alien_pixel(alien_pixel),
+      .projectile_pixel(projectile_pixel)
   );
 
   // Collision detection
@@ -229,6 +231,10 @@ module chipinvaders (
           vga_r = LaserColor[11:8];
           vga_g = LaserColor[7:4];
           vga_b = LaserColor[3:0];
+        end else if (projectile_pixel) begin
+          vga_r = AlienColorA[11:8];
+          vga_g = AlienColorA[7:4];
+          vga_b = AlienColorA[3:0];
         end else if (alien_pixel) begin
           vga_r = AlienColorA[11:8];
           vga_g = AlienColorA[7:4];
