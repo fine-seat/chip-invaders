@@ -53,15 +53,15 @@ module alien_formation #(
     end
 
     if (alive_count <= 5) begin
-      movement_width = 6;
-    end else if (alive_count <= 10) begin
       movement_width = 5;
-    end else if (alive_count <= 20) begin
+    end else if (alive_count <= 10) begin
       movement_width = 4;
-    end else if (alive_count <= 30) begin
+    end else if (alive_count <= 20) begin
       movement_width = 3;
-    end else begin
+    end else if (alive_count <= 30) begin
       movement_width = 2;
+    end else begin
+      movement_width = 1;
     end
   end
 
