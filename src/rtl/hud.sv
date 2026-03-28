@@ -92,7 +92,7 @@ module hud #(
 
   localparam logic [15:0] LiveW = 16;
   localparam logic [15:0] LiveGap = 4;
-  localparam logic [15:0] LiveScale = SCALE * 2;
+  localparam logic [3:0] LiveScale = SCALE * 2;
   localparam logic [15:0] LiveStep = (LiveW + LiveGap) * LiveScale;
 
   genvar life;

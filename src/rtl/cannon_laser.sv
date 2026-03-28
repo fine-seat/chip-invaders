@@ -1,7 +1,7 @@
 module cannon_laser #(
-    parameter CANNON_Y = 470,
-    parameter UPPER_BORDER = 50,
-    parameter SCALING = 4
+    parameter logic[15:0] CANNON_Y = 470,
+    parameter logic[15:0] UPPER_BORDER = 50,
+    parameter logic[15:0] SCALING = 4
 ) (
     input logic reset_n,
     input logic clk,
@@ -23,9 +23,9 @@ module cannon_laser #(
     output logic laser_gfx
 );
 
-  localparam LaserSpeed = 6;
-  localparam LaserWidth = 1 * SCALING;
-  localparam LaserHeight = 4 * SCALING;
+  localparam logic[15:0] LaserSpeed = 6;
+  localparam logic[15:0] LaserWidth = 1 * SCALING;
+  localparam logic[15:0] LaserHeight = 4 * SCALING;
 
   always_ff @(posedge clk or negedge reset_n) begin
     if (!reset_n) begin
