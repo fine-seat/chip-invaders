@@ -99,13 +99,13 @@ module hud #(
   generate
     for (life = 0; life < TotalLives; life++) begin : gen_lives
       cannon_display #(
-          .CANNON_Y(HudYPos - ScoreCharW * LiveScale)
+          .CANNON_Y(HudYPos - ScoreCharW * LiveScale),
+          .SCALE   (LiveScale)
       ) life_cannon (
           .pix_x(pix_x),
           .pix_y(pix_y),
           .x_reg(LivesXStart + life * LiveStep),
-          .cannon_graphics(lives_matrix_raw[life]),
-          .scale(LiveScale)
+          .cannon_graphics(lives_matrix_raw[life])
       );
     end
   endgenerate

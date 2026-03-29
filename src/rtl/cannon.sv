@@ -1,6 +1,7 @@
 module cannon #(
     parameter logic [9:0] SHIP_Y = 10'd440,
-    parameter logic [9:0] SHIP_X = 10'd312
+    parameter logic [9:0] SHIP_X = 10'd312,
+    parameter logic [3:0] SCALE  = 2
 ) (
     input  logic       rst_n,
     input  logic       clk,
@@ -10,7 +11,6 @@ module cannon #(
     input  logic       move_left,
     input  logic       move_right,
     input  logic       fire,
-    input  logic [3:0] scale,           // Scaling factor (1, 2, 4, etc.)
     output logic [9:0] cannon_x_pos,    // Current X position for bullet spawning
     output logic       cannon_graphics  // Pixel output signal for the VGA mixer
 );
@@ -23,8 +23,8 @@ module cannon #(
   logic [9:0] scaled_width;
   logic [9:0] scaled_height;
 
-  assign scaled_width  = BaseWidth * scale;
-  assign scaled_height = BaseHeight * scale;
+  assign scaled_width  = BaseWidth * SCALE;
+  assign scaled_height = BaseHeight * SCALE;
 
   logic [9:0] x_reg = SHIP_X;
 
@@ -60,8 +60,8 @@ module cannon #(
   logic in_sprite_bounds;
 
   always_comb begin
-    rel_x = (10'(pix_x) - x_reg) / scale;
-    rel_y = (10'(pix_y) - SHIP_Y) / scale;
+    rel_x = (10'(pix_x) - x_reg) / SCALE;
+    rel_y = (10'(pix_y) - SHIP_Y) / SCALE;
 
     in_sprite_bounds = (rel_x >= 0) &&
       (rel_x < SpriteWidth) &&

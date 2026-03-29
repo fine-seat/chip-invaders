@@ -143,7 +143,9 @@ module chipinvaders (
   end
 
   // Cannon modules
-  cannon cannon (
+  cannon #(
+      .SCALE(2)
+  ) cannon (
       .rst_n(game_rst_n),
       .clk(clk_25mhz),
       .enable(vsync_pe),
@@ -153,8 +155,7 @@ module chipinvaders (
       .move_right(btn_r),
       .fire(btn_u),
       .cannon_x_pos(cannon_x),
-      .cannon_graphics(cannon_gfx),
-      .scale(2)
+      .cannon_graphics(cannon_gfx)
   );
 
   cannon_laser #(
