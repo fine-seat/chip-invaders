@@ -4,7 +4,7 @@ module hud #(
     input  logic [ 9:0] pix_x,     // Current beam X position
     input  logic [ 9:0] pix_y,     // Current beam Y position
     input  logic [ 1:0] lives,     // Current player lives (0-3)
-    input  logic [13:0] score,     // Current player score (0-9999)
+    input  logic [15:0] score,     // Current player score (BCD: 0000-9999)
     output logic        label_on,  // High when a "SCORE:" label pixel is active
     output logic        value_on   // High when a score digit or lives icon pixel is active
 );
@@ -165,10 +165,10 @@ module hud #(
 
 
   always_comb begin
-    score_d3 = 4'(32'(score) / 1000);
-    score_d2 = 4'((32'(score) % 1000) / 100);
-    score_d1 = 4'((32'(score) % 100) / 10);
-    score_d0 = 4'(32'(score) % 10);
+    score_d3 = score[15:12];
+    score_d2 = score[11:8];
+    score_d1 = score[7:4];
+    score_d0 = score[3:0];
   end
 
   // ---------

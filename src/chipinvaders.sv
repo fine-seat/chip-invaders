@@ -79,7 +79,7 @@ module chipinvaders (
   logic laser_gfx;
 
   logic [1:0] lives = 3;
-  logic [13:0] score;
+  logic [15:0] score;
 
   // Alien formation
   localparam int NumberRows = 5;
@@ -193,10 +193,18 @@ module chipinvaders (
     end else if (vsync_pe) begin
       hit_alien_d <= hit_alien;
       if (game_state == 2'd1 && hit_alien && !hit_alien_d) begin
-        if (score <= 9989) begin
-          score <= score + 10;
+        if (score != 16'h9990) begin
+          if (score[7:4] == 4'h9) begin
+            score[7:4] <= 4'h0;
+            if (score[11:8] == 4'h9) begin
+              score[11:8]  <= 4'h0;
+              score[15:12] <= score[15:12] + 1;
+            end else begin
+              score[11:8] <= score[11:8] + 1;
+            end
         end else begin
-          score <= 9999;
+            score[7:4] <= score[7:4] + 1;
+          end
         end
       end
     end
